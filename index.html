@@ -1219,6 +1219,19 @@ var tournaments2 = {
 };
 
 /* 서브탭 schedule 데이터 */
+/* 3·4위전 누락 보정 헬퍼 */
+function ensureTP(rounds){
+  if(!rounds||!rounds.length) return rounds;
+  var hasTP=rounds.some(function(r){return r.roundName==='3·4위전';});
+  if(hasTP) return rounds;
+  var tpGame=mkGame('','','TBD','TBD','4강 패배팀','','');
+  var tpRnd={roundName:'3·4위전',status:'예정',games:[tpGame]};
+  var fi=-1;
+  for(var i=0;i<rounds.length;i++){if(rounds[i].roundName==='결승전'){fi=i;break;}}
+  if(fi>=0) rounds.splice(fi,0,tpRnd);
+  else rounds.push(tpRnd);
+  return rounds;
+}
 function mkSchedRounds(dateBase1, dateBase2, dateBase3, dateBase4, p1, p2, p3, p4) {
   return [
     {roundName:'1라운드',status:'예정',games:[mkGame(dateBase1,p1,'3반','4반','','',''),mkGame(dateBase1,p2,'8반','9반','','','')]},
@@ -1231,16 +1244,64 @@ function mkSchedRounds(dateBase1, dateBase2, dateBase3, dateBase4, p1, p2, p3, p
 
 var schedules2 = {
   1: {
-    dodgeball: mkSchedRounds('2026-05-19','2026-05-26','2026-06-02','2026-06-09','2교시','3교시','4교시','5교시'),
-    futsal:    mkSchedRounds('2026-05-19','2026-05-26','2026-06-02','2026-06-09','2교시','3교시','4교시','5교시')
+    dodgeball: mkSchedRounds('','','','','','','',''),
+    futsal:    mkSchedRounds('','','','','','','','')
   },
   2: {
-    dodgeball: mkSchedRounds('2026-05-20','2026-05-27','2026-06-03','2026-06-10','5교시','6교시','5교시','6교시'),
-    futsal:    mkSchedRounds('2026-05-20','2026-05-27','2026-06-03','2026-06-10','5교시','6교시','5교시','6교시')
+    dodgeball: mkSchedRounds('','','','','','','',''),
+    futsal:    mkSchedRounds('','','','','','','','')
   },
   3: {
-    dodgeball: mkSchedRounds('2026-05-22','2026-05-29','2026-06-05','2026-06-12','5교시','6교시','5교시','6교시'),
-    futsal:    mkSchedRounds('2026-05-22','2026-05-29','2026-06-05','2026-06-12','5교시','6교시','5교시','6교시')
+    dodgeball: (function(){
+      var d=['2026-07-08','2026-07-09','2026-07-10','2026-07-11','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-18'];
+      return [
+        {roundName:'1라운드',status:'예정',games:[
+          mkGame(d[0],'','3반','4반','','',''),
+          mkGame(d[1],'','8반','9반','','','')
+        ]},
+        {roundName:'8강',status:'예정',games:[
+          mkGame(d[2],'','1반','2반','','',''),
+          mkGame(d[3],'','5반','TBD','1R 1경기 승자','',''),
+          mkGame(d[4],'','6반','7반','','',''),
+          mkGame(d[5],'','10반','TBD','1R 2경기 승자','','')
+        ]},
+        {roundName:'4강',status:'예정',games:[
+          mkGame(d[6],'','TBD','TBD','8강 승자','',''),
+          mkGame(d[7],'','TBD','TBD','8강 승자','','')
+        ]},
+        {roundName:'3·4위전',status:'예정',games:[
+          mkGame(d[8],'','TBD','TBD','4강 패배팀','','')
+        ]},
+        {roundName:'결승전',status:'예정',games:[
+          mkGame(d[9],'','TBD','TBD','4강 승자','','')
+        ]}
+      ];
+    })(),
+    futsal: (function(){
+      var d=['2026-07-08','2026-07-09','2026-07-10','2026-07-11','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-18'];
+      return [
+        {roundName:'1라운드',status:'예정',games:[
+          mkGame(d[0],'','3반','4반','','',''),
+          mkGame(d[1],'','8반','9반','','','')
+        ]},
+        {roundName:'8강',status:'예정',games:[
+          mkGame(d[2],'','1반','2반','','',''),
+          mkGame(d[3],'','5반','TBD','1R 1경기 승자','',''),
+          mkGame(d[4],'','6반','7반','','',''),
+          mkGame(d[5],'','10반','TBD','1R 2경기 승자','','')
+        ]},
+        {roundName:'4강',status:'예정',games:[
+          mkGame(d[6],'','TBD','TBD','8강 승자','',''),
+          mkGame(d[7],'','TBD','TBD','8강 승자','','')
+        ]},
+        {roundName:'3·4위전',status:'예정',games:[
+          mkGame(d[8],'','TBD','TBD','4강 패배팀','','')
+        ]},
+        {roundName:'결승전',status:'예정',games:[
+          mkGame(d[9],'','TBD','TBD','4강 승자','','')
+        ]}
+      ];
+    })()
   }
 };
 
@@ -1952,12 +2013,7 @@ function renderGlBody(){
         if(!S2[g])return;
         ['dodgeball','futsal'].forEach(function(sport){
           if(!S2[g][sport])return;
-          var hasTP=S2[g][sport].some(function(r){return r.roundName==='3·4위전';});
-          if(!hasTP){
-            var def=mkSchedRounds('','','','','','','','');
-            var tpRnd=def.find(function(r){return r.roundName==='3·4위전';});
-            if(tpRnd){var fi=S2[g][sport].findIndex(function(r){return r.roundName==='결승전';});if(fi>=0)S2[g][sport].splice(fi,0,tpRnd);else S2[g][sport].push(tpRnd);}
-          }
+          ensureTP(S2[g][sport]);
         });
         Object.assign(schedules2[g],S2[g]);
       });}catch(e){}}
@@ -2059,13 +2115,7 @@ function startFirebase(){
           if(!S2[g])return;
           ['dodgeball','futsal'].forEach(function(sport){
             if(!S2[g][sport])return;
-            // 3·4위전 없으면 기본값에서 보정
-            var hasTP=S2[g][sport].some(function(r){return r.roundName==='3·4위전';});
-            if(!hasTP){
-              var def=mkSchedRounds('','','','','','','','');
-              var tpRnd=def.find(function(r){return r.roundName==='3·4위전';});
-              if(tpRnd){var fi=S2[g][sport].findIndex(function(r){return r.roundName==='결승전';});if(fi>=0)S2[g][sport].splice(fi,0,tpRnd);else S2[g][sport].push(tpRnd);}
-            }
+            ensureTP(S2[g][sport]);
           });
           Object.assign(schedules2[g],S2[g]);
         });}catch(e){}}
