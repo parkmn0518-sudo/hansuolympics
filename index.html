@@ -481,7 +481,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 <div class="modal-bg" id="scheduleGameModal"><div class="modal">
   <h2 id="sgModalTitle">경기 추가</h2>
   <input type="hidden" id="sgGrade"><input type="hidden" id="sgSport"><input type="hidden" id="sgRoundIdx"><input type="hidden" id="sgGameIdx">
-  <label>라운드</label><select id="sgRoundName"><option>1라운드</option><option>8강</option><option>4강</option><option>결승전</option></select>
+  <label>라운드</label><select id="sgRoundName"><option>1라운드</option><option>8강</option><option>4강</option><option>3·4위전</option><option>결승전</option></select>
   <label>날짜</label><input type="date" id="sgDate">
   <label>교시</label><select id="sgTime"><option value="">— 선택 —</option><option>1교시</option><option>2교시</option><option>3교시</option><option>4교시</option><option>5교시</option><option>6교시</option><option>7교시</option></select>
   <label>홈팀 (예: 3반)</label><input type="text" id="sgHome" placeholder="3반">
@@ -502,7 +502,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <div class="modal-btns"><button class="btn-cancel" onclick="closeModal('scheduleGameModal')">취소</button><button class="btn-confirm" onclick="saveScheduleGame()">저장</button></div>
 </div></div>
 
-<div class="modal-bg" id="addRoundModal"><div class="modal"><h2>📅 라운드 추가</h2><input type="hidden" id="arGrade"><input type="hidden" id="arSport"><label>라운드명</label><select id="arName"><option>1라운드</option><option>8강</option><option>4강</option><option>결승전</option></select><label>상태</label><select id="arStatus"><option value="예정">예정</option><option value="완료">완료</option></select><div class="modal-btns"><button class="btn-cancel" onclick="closeModal('addRoundModal')">취소</button><button class="btn-confirm" onclick="saveNewRound()">추가</button></div></div></div>
+<div class="modal-bg" id="addRoundModal"><div class="modal"><h2>📅 라운드 추가</h2><input type="hidden" id="arGrade"><input type="hidden" id="arSport"><label>라운드명</label><select id="arName"><option>1라운드</option><option>8강</option><option>4강</option><option>3·4위전</option><option>결승전</option></select><label>상태</label><select id="arStatus"><option value="예정">예정</option><option value="완료">완료</option></select><div class="modal-btns"><button class="btn-cancel" onclick="closeModal('addRoundModal')">취소</button><button class="btn-confirm" onclick="saveNewRound()">추가</button></div></div></div>
 
 <div class="modal-bg" id="gamesListModal"><div class="modal" style="max-width:640px;padding:0;border-radius:14px 14px 0 0;">
   <div style="background:var(--navy);padding:14px 16px;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:space-between;">
@@ -1223,6 +1223,7 @@ function mkSchedRounds(dateBase1, dateBase2, dateBase3, dateBase4, p1, p2, p3, p
     {roundName:'1라운드',status:'예정',games:[mkGame(dateBase1,p1,'3반','4반','','',''),mkGame(dateBase1,p2,'8반','9반','','','')]},
     {roundName:'8강',status:'예정',games:[mkGame(dateBase2,p3,'1반','2반','','',''),mkGame(dateBase2,p4,'5반','TBD','1R 1경기 승자','',''),mkGame(dateBase2,p3,'6반','7반','','',''),mkGame(dateBase2,p4,'10반','TBD','1R 2경기 승자','','')]},
     {roundName:'4강',status:'예정',games:[mkGame(dateBase3,p3,'TBD','TBD','8강 승자','',''),mkGame(dateBase3,p4,'TBD','TBD','8강 승자','','')]},
+    {roundName:'3·4위전',status:'예정',games:[mkGame(dateBase4,p3,'TBD','TBD','4강 패배팀','','')]},
     {roundName:'결승전',status:'예정',games:[mkGame(dateBase4,p4,'TBD','TBD','4강 승자','','')]},
   ];
 }
@@ -1255,7 +1256,7 @@ function getMatchNum2(matchId, sport){
 function syncSchedToBracket2(g, sport, gm, ri, gi){
   var rndName = schedules2[g][sport][ri].roundName;
   var R = tournaments2[g][sport].rounds;
-  var map = {'1라운드':R.r1,'8강':R.qf,'4강':R.sf,'결승전':R.final};
+  var map = {'1라운드':R.r1,'8강':R.qf,'4강':R.sf,'3·4위전':R.third,'결승전':R.final};
   var arr = map[rndName];
   if(!arr||gi>=arr.length) return;
   var bm = arr[gi]; if(!bm) return;
@@ -1283,7 +1284,7 @@ function syncBracketToSched2(g, sport, m, matchId){
   var parts=matchId.split('_');
   var rndKey=parts[parts.length-2];
   var matchIdx=+parts[parts.length-1]-1;
-  var rndNameMap={r1:'1라운드',qf:'8강',sf:'4강',f:'결승전'};
+  var rndNameMap={r1:'1라운드',qf:'8강',sf:'4강',tp:'3·4위전',f:'결승전'};
   var rndName=rndNameMap[rndKey];
   if(!rndName||!schedules2[g][sport]) return;
   var ri=-1;
@@ -1444,7 +1445,7 @@ function renderSchedule2(g, sport){
     '</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
 }
 function getSchedMatchNum2(g, sport, ri, gi){
-  var rndKey={'1라운드':'r1','8강':'qf','4강':'sf','결승전':'f'};
+  var rndKey={'1라운드':'r1','8강':'qf','4강':'sf','3·4위전':'tp','결승전':'f'};
   var rnd=schedules2[g][sport][ri];
   if(!rnd) return '';
   var k=rndKey[rnd.roundName];
