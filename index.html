@@ -1826,7 +1826,7 @@ function renderAllGames(){
   var gradeNames={1:'1학년',2:'2학년',3:'3학년'};
   var sportCls={dodgeball:'dodgeball',futsal:'futsal2'};
   var html='<div class="ag-page">';
-  [1,2,3].forEach(function(g){
+  [3,2,1].forEach(function(g){
     ['dodgeball','futsal'].forEach(function(sport){
       var sCls=sportCls[sport];
       var title=gradeNames[g]+' '+sportLabel[sport];
@@ -1937,8 +1937,29 @@ function renderGlBody(){
     // if(d.rulesData)rulesData=JSON.parse(d.rulesData);
     // if(d.infoData)Object.assign(infoData,JSON.parse(d.infoData));
     if(d.calManualEvents)calManualEvents=JSON.parse(d.calManualEvents);
-    if(d.tournaments2){try{const T2=JSON.parse(d.tournaments2);[1,2,3].forEach(function(g){if(T2[g])tournaments2[g]=T2[g];});}catch(e){}}
-    if(d.schedules2){try{const S2=JSON.parse(d.schedules2);[1,2,3].forEach(function(g){if(S2[g])Object.assign(schedules2[g],S2[g]);});}catch(e){}}
+    if(d.tournaments2){try{const T2=JSON.parse(d.tournaments2);[1,2,3].forEach(function(g){
+        if(!T2[g])return;
+        ['dodgeball','futsal'].forEach(function(sport){
+          if(!T2[g][sport])return;
+          if(!T2[g][sport].rounds.third||!T2[g][sport].rounds.third.length){
+            T2[g][sport].rounds.third=tournaments2[g][sport].rounds.third;
+          }
+        });
+        tournaments2[g]=T2[g];
+      });}catch(e){}}
+    if(d.schedules2){try{const S2=JSON.parse(d.schedules2);[1,2,3].forEach(function(g){
+        if(!S2[g])return;
+        ['dodgeball','futsal'].forEach(function(sport){
+          if(!S2[g][sport])return;
+          var hasTP=S2[g][sport].some(function(r){return r.roundName==='3·4위전';});
+          if(!hasTP){
+            var def=mkSchedRounds('','','','','','','','');
+            var tpRnd=def.find(function(r){return r.roundName==='3·4위전';});
+            if(tpRnd){var fi=S2[g][sport].findIndex(function(r){return r.roundName==='결승전';});if(fi>=0)S2[g][sport].splice(fi,0,tpRnd);else S2[g][sport].push(tpRnd);}
+          }
+        });
+        Object.assign(schedules2[g],S2[g]);
+      });}catch(e){}}
   }catch(e){localStorage.removeItem('hansucup_cache');}
 })();
 
@@ -2022,12 +2043,28 @@ function startFirebase(){
       // if(d.rulesData)rulesData=JSON.parse(d.rulesData);
       // if(d.infoData)Object.assign(infoData,JSON.parse(d.infoData));
       if(d.calManualEvents)calManualEvents=JSON.parse(d.calManualEvents);
-      if(d.tournaments2){try{const T2=JSON.parse(d.tournaments2);[1,2,3].forEach(function(g){if(T2[g])tournaments2[g]=T2[g];});} catch(e){}}
+      if(d.tournaments2){try{const T2=JSON.parse(d.tournaments2);[1,2,3].forEach(function(g){
+          if(!T2[g])return;
+          ['dodgeball','futsal'].forEach(function(sport){
+            if(!T2[g][sport])return;
+            // third 배열 없으면 기본값 보정
+            if(!T2[g][sport].rounds.third||!T2[g][sport].rounds.third.length){
+              T2[g][sport].rounds.third=tournaments2[g][sport].rounds.third;
+            }
+          });
+          tournaments2[g]=T2[g];
+        });} catch(e){}}
       if(d.schedules2){try{const S2=JSON.parse(d.schedules2);[1,2,3].forEach(function(g){
           if(!S2[g])return;
           ['dodgeball','futsal'].forEach(function(sport){
             if(!S2[g][sport])return;
-            S2[g][sport]=S2[g][sport].filter(function(r){return r.roundName!=='3·4위전';});
+            // 3·4위전 없으면 기본값에서 보정
+            var hasTP=S2[g][sport].some(function(r){return r.roundName==='3·4위전';});
+            if(!hasTP){
+              var def=mkSchedRounds('','','','','','','','');
+              var tpRnd=def.find(function(r){return r.roundName==='3·4위전';});
+              if(tpRnd){var fi=S2[g][sport].findIndex(function(r){return r.roundName==='결승전';});if(fi>=0)S2[g][sport].splice(fi,0,tpRnd);else S2[g][sport].push(tpRnd);}
+            }
           });
           Object.assign(schedules2[g],S2[g]);
         });}catch(e){}}
