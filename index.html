@@ -774,7 +774,8 @@ var MATCH_NUM_MAP = {
   r1_1:1, r1_2:2,
   qf_1:3, qf_2:4, qf_3:5, qf_4:6,
   sf_1:7, sf_2:8,
-  f_1:9
+  tp_1:9,
+  f_1:10
 };
 function getMatchNum(matchId){
   // matchId: "1_r1_1" → key: "r1_1"
@@ -1912,7 +1913,7 @@ function renderGlBody(){
 /* ④ localStorage 캐시 즉시 로드 (Firebase 응답 전 빈 화면 방지) */
 (function loadCache(){
   try{
-    const cached=localStorage.getItem('hansucup_cache');
+    const cached=localStorage.getItem('hansuolympics_cache');
     if(!cached)return;
     const d=JSON.parse(cached);
     if(d.tournaments){
@@ -1960,7 +1961,7 @@ function renderGlBody(){
         });
         Object.assign(schedules2[g],S2[g]);
       });}catch(e){}}
-  }catch(e){localStorage.removeItem('hansucup_cache');}
+  }catch(e){localStorage.removeItem('hansuolympics_cache');}
 })();
 
 renderHome();
@@ -2019,7 +2020,7 @@ function startFirebase(){
     const d=snap.val();
     if(!d){return;}
     /* ④ 캐시 저장 */
-    try{localStorage.setItem('hansucup_cache',JSON.stringify(d));}catch(e){}
+    try{localStorage.setItem('hansuolympics_cache',JSON.stringify(d));}catch(e){}
     try{
       if(d.tournaments){
         const T=JSON.parse(d.tournaments);
