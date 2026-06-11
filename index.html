@@ -959,7 +959,7 @@ let rulesData=[
   {title:'🤾‍♂️ 피구 경기 요강',body:'■ 경기 방식\n• 전학년 토너먼트 — 총 9경기\n• 남녀 혼합 경기 (전체 학급 참가)\n• 경기장소: 체육관\n\n■ 경기 전 준비\n• 심판배정: 주심 1명, 사이드심 4명, 기록원 1명\n• 경기 3분 전 선수 집합 및 인원 확인\n• 공수 결정: 주장 간 가위바위보\n• 준비운동 실시 (주심 진행)\n\n■ 경기 규칙\n• 상대 팀 선수를 공으로 맞히면 아웃\n• 아웃된 선수는 외야로 이동\n• 외야에서 상대를 맞히면 부활 가능\n• 머리·목 부위 직접 타격 시 타격한 팀 반칙\n• 안경 착용 금지\n\n■ 경기 후\n• 상호 인사 및 담임선생님 인사\n• 경기장 주변 정리·정돈\n\n■ 준비물\n• 팀조끼, 심판휘슬, 초시계, 피구공, 기록지\n\n■ 주의사항\n• 운동화 착용 필수\n• 심판 판정 이의 제기 금지'},
   {title:'⚽ 풋살 경기 요강',body:'■ 경기 방식\n• 전학년 토너먼트 — 총 9경기\n• 남녀 각 8명 혼합 참가\n• 경기장소: 체육관\n\n■ 경기 전 준비\n• 심판배정: 주심 1명, 기록원 1명\n• 경기 3분 전 선수 집합: 5명 + 후보 3명\n• 공수 결정: 주장 간 가위바위보\n• 안경 착용 금지, 정강이보호대 착용 권장\n\n■ 경기 규칙\n• 킥인: 터치라인에서 실시, 간접프리킥 적용\n• 킥오프: 우리 팀 진형으로 패스 가능, 직접 슈팅 골 인정\n• 골키퍼 볼 소유: 4초룰 적용, 직접 발로 차서 들어가면 골\n• 코너킥: 4초룰 적용, 직접 들어간 골 인정\n• 골라인 안 고의 수비 시 경고 (2회 경고 시 2분 퇴장)\n• 버저 비터 노골\n• 승부차기: 4명 (남학생 2명, 여학생 2명)\n• 이외 규정은 대한체육회 규정에 따름\n\n■ 경기 후\n• 상호 인사 및 담임선생님 인사\n• 경기장 주변 정리·정돈\n\n■ 준비물\n• 팀조끼, 심판휘슬, 초시계, 부심기, 풋살공, 기록지\n\n■ 주의사항\n• 운동화 착용 필수\n• 풋살 스타킹 개인 지참\n• 심판 판정 이의 제기 금지'},
   {title:'(미사용)',body:''},
-  {title:'📋 공통 규정',body:'■ 토너먼트 진행\n• 시드 1~6: 직접 8강 진출\n• 시드 7~10: 1라운드 (7vs10, 8vs9) 후 진출\n• 패배팀 탈락 (3·4위전 없음)\n\n■ 공통 규정\n• 경기 시작 5분 전까지 경기장 집합\n• 무단 불참 시 해당 경기 몰수패 처리\n• 부상 발생 시 즉시 교사에게 보고\n• 모든 학생 페어플레이 정신 준수\n\n■ 시상\n• 종합 1등: 10만원 상품 + 우승 패넌트 (학년별 1팀)\n• 종합 2등: 10만원 상품 (학년별 1팀)\n• 종합 3등: 5만원 상품 (학년별 1팀)'}
+  {title:'📋 공통 규정',body:'■ 토너먼트 진행\n• 시드 1~6: 직접 8강 진출\n• 시드 7~10: 1라운드 (7vs10, 8vs9) 후 진출\n• 패배팀 탈락\\n• 4강 패배팀은 3·4위전 진행\n\n■ 공통 규정\n• 경기 시작 5분 전까지 경기장 집합\n• 무단 불참 시 해당 경기 몰수패 처리\n• 부상 발생 시 즉시 교사에게 보고\n• 모든 학생 페어플레이 정신 준수\n\n■ 시상\n• 종합 1등: 10만원 상품 + 우승 패넌트 (학년별 1팀)\n• 종합 2등: 10만원 상품 (학년별 1팀)\n• 종합 3등: 5만원 상품 (학년별 1팀)'}
 ];
 let activeRulesIdx=3;
 function renderRulesCard(){
@@ -1008,12 +1008,12 @@ function initTournament(g){
       {id:g+'_sf_1',round:'4강',home:null,away:null,homeScore:null,awayScore:null,status:'scheduled',winner:null,date:'',teacher:'',referee:'',time:''},
       {id:g+'_sf_2',round:'4강',home:null,away:null,homeScore:null,awayScore:null,status:'scheduled',winner:null,date:'',teacher:'',referee:'',time:''}
     ],
-    third:[],
+    third:[{id:g+'_tp_1',round:'3·4위전',home:null,away:null,homeScore:null,awayScore:null,status:'scheduled',winner:null,date:'',teacher:'',referee:'',time:''}],
     final:[{id:g+'_f_1',round:'결승전',home:null,away:null,homeScore:null,awayScore:null,status:'scheduled',winner:null,date:'',teacher:'',referee:'',time:''}]
   }};
 }
 let tournaments={1:initTournament(1),2:initTournament(2),3:initTournament(3)};
-function propagate(g){const R=tournaments[g].rounds;R.qf[1].away=R.r1[0].winner||null;R.qf[3].away=R.r1[1].winner||null;R.sf[0].home=R.qf[0].winner||null;R.sf[0].away=R.qf[3].winner||null;R.sf[1].home=R.qf[1].winner||null;R.sf[1].away=R.qf[2].winner||null;R.final[0].home=R.sf[0].winner||null;R.final[0].away=R.sf[1].winner||null;const l0=R.sf[0].status==='done'?(R.sf[0].winner===R.sf[0].home?R.sf[0].away:R.sf[0].home):null;const l1=R.sf[1].status==='done'?(R.sf[1].winner===R.sf[1].home?R.sf[1].away:R.sf[1].home):null;}
+function propagate(g){const R=tournaments[g].rounds;R.qf[1].away=R.r1[0].winner||null;R.qf[3].away=R.r1[1].winner||null;R.sf[0].home=R.qf[0].winner||null;R.sf[0].away=R.qf[3].winner||null;R.sf[1].home=R.qf[1].winner||null;R.sf[1].away=R.qf[2].winner||null;const l0=R.sf[0].status==='done'?(R.sf[0].winner===R.sf[0].home?R.sf[0].away:R.sf[0].home):null;const l1=R.sf[1].status==='done'?(R.sf[1].winner===R.sf[1].home?R.sf[1].away:R.sf[1].home):null;R.third[0].home=l0;R.third[0].away=l1;R.final[0].home=R.sf[0].winner||null;R.final[0].away=R.sf[1].winner||null;}
 function countStats(){var done=0,total=0;[1,2,3].forEach(function(g){['dodgeball','futsal'].forEach(function(sport){(schedules2[g][sport]||[]).forEach(function(rnd){(rnd.games||[]).forEach(function(gm){total++;if(gm.status==='완료')done++;});});});});return{total:total,done:done,sched:total-done};}
 function teamLabel(t){return t?t.name:'TBD';}
 
@@ -1057,7 +1057,7 @@ function matchNodeHTML(m,g){
 }
 function toggleEdit(id){const el=document.getElementById('edit_'+id);if(el)el.classList.toggle('show');}
 function saveMatch(id,g){
-  const R=tournaments[g].rounds,allM=[].concat(R.r1,R.qf,R.sf,R.final),m=allM.find(function(x){return x.id===id;});
+  const R=tournaments[g].rounds,allM=[].concat(R.r1,R.qf,R.sf,R.third,R.final),m=allM.find(function(x){return x.id===id;});
   if(!m)return;
   const hn=document.getElementById('hn_'+id);const an=document.getElementById('an_'+id);
   if(hn&&hn.value.trim()&&m.home)m.home.name=hn.value.trim();
@@ -1074,24 +1074,25 @@ function saveMatch(id,g){
 function renderBracket(g){
   propagate(g);
   const T=tournaments[g],R=T.rounds,info=gradeInfo[g],cls=info.cls;
-  const allM=[].concat(R.r1,R.qf,R.sf,R.final);
+  const allM=[].concat(R.r1,R.qf,R.sf,R.third,R.final);
   const done=allM.filter(function(m){return m.status==='done';}).length;
   const f=R.final[0];let champ='',second='',third='';
   if(f.status==='done'&&f.winner){champ=f.winner.name;second=(f.winner===f.home?f.away:f.home)?((f.winner===f.home?f.away:f.home).name||''):'';} 
-  if([0].status==='done'&&[0].winner)third=[0].winner.name;
+  if(R.third[0]&&R.third[0].status==='done'&&R.third[0].winner)third=R.third[0].winner.name;
   const podium=(champ||second||third)?'<div class="podium-grid">'+
     (champ?'<div class="podium-card gold-b"><div style="font-size:18px;">🥇</div><div class="podium-name">'+champ+'</div><div class="podium-lbl">우승</div></div>':'')+
     (second?'<div class="podium-card"><div style="font-size:18px;">🥈</div><div class="podium-name">'+second+'</div><div class="podium-lbl">준우승</div></div>':'')+
     (third?'<div class="podium-card"><div style="font-size:18px;">🥉</div><div class="podium-name">'+third+'</div><div class="podium-lbl">3위</div></div>':'')+
     '</div>':'';
-  const rl=function(s){return '<div class="round-col-label '+cls+'">'+(s==='결승전'?'🏆 결승전':s)+'</div>';};
-  const bracketHTML='<div class="bracket-header"><div class="grade-badge '+cls+'">'+info.name+'</div><div class="sport-badge '+cls+'">'+info.sport+'</div><div style="font-size:12px;color:var(--text2);margin-left:auto;">'+done+'/9 완료</div></div>'+
+  const rl=function(s){return '<div class="round-col-label '+cls+'">'+(s==='결승전'?'🏆 결승전':s==='3·4위전'?'🥉 3·4위전':s)+'</div>';};
+  const bracketHTML='<div class="bracket-header"><div class="grade-badge '+cls+'">'+info.name+'</div><div class="sport-badge '+cls+'">'+info.sport+'</div><div style="font-size:12px;color:var(--text2);margin-left:auto;">'+done+'/10 완료</div></div>'+
     podium+
     '<div class="section-title" style="margin-top:0">토너먼트 대진표</div>'+
     '<div class="bracket-wrap"><div class="round-col-grid">'+
     '<div>'+rl('1라운드')+'<div style="padding:3px;">'+R.r1.map(function(m){return matchNodeHTML(m,g);}).join('')+'</div></div>'+
     '<div>'+rl('8강')+'<div style="padding:3px;">'+R.qf.map(function(m){return matchNodeHTML(m,g);}).join('')+'</div></div>'+
     '<div>'+rl('4강')+'<div style="padding:3px;">'+R.sf.map(function(m){return matchNodeHTML(m,g);}).join('')+'</div></div>'+
+    '<div>'+rl('3·4위전')+'<div style="padding:3px;">'+R.third.map(function(m){return matchNodeHTML(m,g);}).join('')+'</div></div>'+
     '<div>'+rl('결승전')+'<div style="padding:3px;">'+R.final.map(function(m){return matchNodeHTML(m,g);}).join('')+'</div></div>'+
     '</div></div>'+
     '<div class="section-title">'+info.schedLabel+'</div>';
@@ -1192,17 +1193,20 @@ function initTournament2(g, sport) {
       {id:prefix+'sf_1',round:'4강',home:null,away:null,homeScore:null,awayScore:null,status:'scheduled',winner:null,date:'',teacher:'',referee:'',time:''},
       {id:prefix+'sf_2',round:'4강',home:null,away:null,homeScore:null,awayScore:null,status:'scheduled',winner:null,date:'',teacher:'',referee:'',time:''}
     ],
-    third:[],
+    third:[{id:prefix+'tp_1',round:'3·4위전',home:null,away:null,homeScore:null,awayScore:null,status:'scheduled',winner:null,date:'',teacher:'',referee:'',time:''}],
     final:[{id:prefix+'f_1',round:'결승전',home:null,away:null,homeScore:null,awayScore:null,status:'scheduled',winner:null,date:'',teacher:'',referee:'',time:''}]
   }};
 }
 
 function propagate2(g, sport) {
   var R = tournaments2[g][sport].rounds;
-  R.qf[1].away=R.r1[0].winner||null;  // 1라운드 1경기(3vs4) 승자 → 8강 4번(5반 away)
-  R.qf[3].away=R.r1[1].winner||null;  // 1라운드 2경기(8vs9) 승자 → 8강 6번(10반 away)
+  R.qf[1].away=R.r1[0].winner||null;
+  R.qf[3].away=R.r1[1].winner||null;
   R.sf[0].home=R.qf[0].winner||null;R.sf[0].away=R.qf[3].winner||null;
   R.sf[1].home=R.qf[1].winner||null;R.sf[1].away=R.qf[2].winner||null;
+  var l0=R.sf[0].status==='done'?(R.sf[0].winner===R.sf[0].home?R.sf[0].away:R.sf[0].home):null;
+  var l1=R.sf[1].status==='done'?(R.sf[1].winner===R.sf[1].home?R.sf[1].away:R.sf[1].home):null;
+  R.third[0].home=l0; R.third[0].away=l1;
   R.final[0].home=R.sf[0].winner||null;R.final[0].away=R.sf[1].winner||null;
 }
 
@@ -1363,10 +1367,9 @@ function matchNodeHTML2(m, g, sport){
 function toggleEdit2(id, sport){var el=document.getElementById('edit2_'+id);if(el)el.classList.toggle('show');}
 function saveMatch2(id, g, sport){
   var R=tournaments2[g][sport].rounds;
-  var allM=[].concat(R.r1,R.qf,R.sf,R.final);
+  var allM=[].concat(R.r1,R.qf,R.sf,R.third,R.final);
   var m=allM.find(function(x){return x.id===id;});
   if(!m) return;
-  var hn=document.getElementById('hn2_'+id), an=document.getElementById('an2_'+id);
   if(hn&&hn.value.trim()&&m.home)m.home.name=hn.value.trim();
   if(an&&an.value.trim()&&m.away)m.away.name=an.value.trim();
   m.date=document.getElementById('dt2_'+id).value;
@@ -1492,11 +1495,11 @@ function renderBracket2(g, sport){
   var sm=sportMeta[sport];
   var info=gradeInfo[g];
   var cls=sm.cls;
-  var allM=[].concat(R.r1,R.qf,R.sf,R.final);
+  var allM=[].concat(R.r1,R.qf,R.sf,R.third,R.final);
   var done=allM.filter(function(m){return m.status==='done';}).length;
   var f=R.final[0];var champ='',second='',third_='';
   if(f.status==='done'&&f.winner){champ=f.winner.name;second=(f.winner===f.home?f.away:f.home)?((f.winner===f.home?f.away:f.home).name||''):'';} 
-  if([0].status==='done'&&[0].winner)third_=[0].winner.name;
+  if(R.third[0]&&R.third[0].status==='done'&&R.third[0].winner)third_=R.third[0].winner.name;
   var podium=(champ||second||third_)?'<div class="podium-grid">'+
     (champ?'<div class="podium-card gold-b"><div style="font-size:18px;">🥇</div><div class="podium-name">'+champ+'</div><div class="podium-lbl">우승</div></div>':'')+
     (second?'<div class="podium-card"><div style="font-size:18px;">🥈</div><div class="podium-name">'+second+'</div><div class="podium-lbl">준우승</div></div>':'')+
@@ -1509,15 +1512,16 @@ function renderBracket2(g, sport){
     '<button class="subtab-btn pdk '+(sport==='dodgeball'?'active':'')+'" onclick="renderBracket2('+g+',\'dodgeball\')">🤾‍♂️ 피구</button>'+
     '<button class="subtab-btn fts '+(sport==='futsal'?'active':'')+'" onclick="renderBracket2('+g+',\'futsal\')">⚽ 풋살</button>'+
     '</div>';
-  var rl=function(s){return '<div class="round-col-label '+lCls+'">'+(s==='결승전'?'🏆 결승전':s)+'</div>';};
+  var rl=function(s){return '<div class="round-col-label '+lCls+'">'+(s==='결승전'?'🏆 결승전':s==='3·4위전'?'🥉 3·4위전':s)+'</div>';};
   var bracketHTML=
-    '<div class="bracket-header"><div class="grade-badge '+lCls+'">'+info.name+'</div><div class="sport-badge '+lCls+'">'+sm.icon+' '+sm.name+'</div><div style="font-size:12px;color:var(--text2);margin-left:auto;">'+done+'/9 완료</div></div>'+
+    '<div class="bracket-header"><div class="grade-badge '+lCls+'">'+info.name+'</div><div class="sport-badge '+lCls+'">'+sm.icon+' '+sm.name+'</div><div style="font-size:12px;color:var(--text2);margin-left:auto;">'+done+'/10 완료</div></div>'+
     podium+
     '<div class="section-title" style="margin-top:0">토너먼트 대진표</div>'+
     '<div class="bracket-wrap"><div class="round-col-grid">'+
     '<div>'+rl('1라운드')+'<div style="padding:3px;">'+R.r1.map(function(m){return matchNodeHTML2(m,g,sport);}).join('')+'</div></div>'+
     '<div>'+rl('8강')+'<div style="padding:3px;">'+R.qf.map(function(m){return matchNodeHTML2(m,g,sport);}).join('')+'</div></div>'+
     '<div>'+rl('4강')+'<div style="padding:3px;">'+R.sf.map(function(m){return matchNodeHTML2(m,g,sport);}).join('')+'</div></div>'+
+    '<div>'+rl('3·4위전')+'<div style="padding:3px;">'+R.third.map(function(m){return matchNodeHTML2(m,g,sport);}).join('')+'</div></div>'+
     '<div>'+rl('결승전')+'<div style="padding:3px;">'+R.final.map(function(m){return matchNodeHTML2(m,g,sport);}).join('')+'</div></div>'+
     '</div></div>'+
     '<div class="section-title">'+sm.schedLabel+'</div>';
@@ -1760,11 +1764,13 @@ function buildSVG(g, sport){
   var nodeBg=gradeNodeBg[g];
   var nodeLine=gradeNodeBorder[g];
   var slot=BW+GAP_X;
-  var totalW=4*slot-GAP_X+PAD_X*2;
+  // 3·4위전 추가로 가로 폭 확장 (결승전 + 3·4위전 나란히)
+  var totalW=4*slot-GAP_X+PAD_X*2+slot;
   var innerW=4*slot-GAP_X;
   function qfX(i){return PAD_X+i*slot;}
   function sfX(i){return i===0?(qfX(0)+qfX(1))/2:(qfX(2)+qfX(3))/2;}
   function finX(){return PAD_X+innerW/2-BW/2;}
+  function tpX(){return finX()+BW+GAP_X*2;}  // 3·4위전: 결승전 오른쪽
   function r1X(i){return i===0?qfX(1):qfX(3);}
   var rowH=LABEL_H+BH+GAP_Y;
   var totalH=4*rowH+PAD_Y*2;
@@ -1772,12 +1778,20 @@ function buildSVG(g, sport){
   function boxY(ri){return rowY(ri)+LABEL_H+4;}
   var rounds=[{label:'결승전',ri:0},{label:'4강',ri:1},{label:'8강',ri:2},{label:'1라운드',ri:3}];
   var svgLines='',svgBoxes='',svgLabels='';
+  // 기존 라운드 라벨
   rounds.forEach(function(rnd){
     var ly=rowY(rnd.ri),cx=PAD_X+innerW/2;
     svgLabels+='<rect x="'+(cx-28)+'" y="'+ly+'" width="56" height="'+LABEL_H+'" rx="6" fill="'+nodeColor+'" opacity="0.15"/>'
       +'<text x="'+cx+'" y="'+(ly+14)+'" font-size="10" font-weight="700" fill="'+nodeColor+'" text-anchor="middle" font-family="Noto Sans KR,sans-serif">'+rnd.label+'</text>';
   });
+  // 3·4위전 라벨 (결승전과 같은 행, 같은 색)
+  var tpCx=tpX()+BW/2;
+  var tpLy=rowY(0);
+  svgLabels+='<rect x="'+(tpCx-28)+'" y="'+tpLy+'" width="56" height="'+LABEL_H+'" rx="6" fill="'+nodeColor+'" opacity="0.15"/>'
+    +'<text x="'+tpCx+'" y="'+(tpLy+14)+'" font-size="10" font-weight="700" fill="'+nodeColor+'" text-anchor="middle" font-family="Noto Sans KR,sans-serif">3·4위전</text>';
+  // 경기 박스
   svgBoxes+=matchBox(finX(),boxY(0),R.final[0],nodeColor,nodeBg,getMatchNum2(R.final[0].id,sport));
+  svgBoxes+=matchBox(tpX(),boxY(0),R.third[0],nodeColor,nodeBg,getMatchNum2(R.third[0].id,sport));
   [0,1].forEach(function(i){svgBoxes+=matchBox(sfX(i),boxY(1),R.sf[i],nodeColor,nodeBg,getMatchNum2(R.sf[i].id,sport));});
   [0,1,2,3].forEach(function(i){svgBoxes+=matchBox(qfX(i),boxY(2),R.qf[i],nodeColor,nodeBg,getMatchNum2(R.qf[i].id,sport));});
   [0,1].forEach(function(i){svgBoxes+=matchBox(r1X(i),boxY(3),R.r1[i],nodeColor,nodeBg,getMatchNum2(R.r1[i].id,sport));});
@@ -1790,6 +1804,7 @@ function buildSVG(g, sport){
       +'<line x1="'+x1+'" y1="'+my+'" x2="'+x2+'" y2="'+my+'" stroke="'+nodeLine+'" stroke-width="1.5"/>'
       +'<line x1="'+x2+'" y1="'+my+'" x2="'+x2+'" y2="'+y2+'" stroke="'+nodeLine+'" stroke-width="1.5"/>';
   }
+  // 기존 연결선
   connect(cxM(finX()),bot(0),cxM(sfX(0)),top(1));
   connect(cxM(finX()),bot(0),cxM(sfX(1)),top(1));
   connect(cxM(sfX(0)),bot(1),cxM(qfX(0)),top(2));
@@ -1904,7 +1919,7 @@ function renderGlBody(){
       [1,2,3].forEach(function(g){
         if(!T[g])return;
         const R=T[g].rounds;
-        [].concat(R.r1,R.qf,R.sf,R.final).forEach(function(m){
+        [].concat(R.r1,R.qf,R.sf,R.third||[],R.final).forEach(function(m){
           if(!m||!m.winner)return;
           if(m.home&&m.winner.id===m.home.id)m.winner=m.home;
           else if(m.away&&m.winner.id===m.away.id)m.winner=m.away;
@@ -1989,7 +2004,7 @@ function startFirebase(){
         [1,2,3].forEach(function(g){
           if(!T[g])return;
           const R=T[g].rounds;
-          [].concat(R.r1,R.qf,R.sf,R.final).forEach(function(m){
+          [].concat(R.r1,R.qf,R.sf,R.third||[],R.final).forEach(function(m){
             if(!m||!m.winner)return;
             if(m.home&&m.winner.id===m.home.id)m.winner=m.home;
             else if(m.away&&m.winner.id===m.away.id)m.winner=m.away;
