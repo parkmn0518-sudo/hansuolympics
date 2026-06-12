@@ -379,7 +379,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <div class="logo-trophy">🏆</div>
       <div class="logo-texts">
         <div class="logo-main">2026 한수올림픽</div>
-        <div class="logo-sub">한수중학교 체육</div>
+        <div class="logo-sub">한수중학교 3학년부</div>
       </div>
     </div>
     <div class="banner-spacer"></div>
@@ -2067,7 +2067,7 @@ function startFirebase(){
   if(typeof firebase==='undefined'){console.warn('[Firebase] SDK 없음');return;}
   try{
     const app=firebase.apps.length?firebase.app():firebase.initializeApp(FB_CONFIG);
-    FBAUTH=firebase.auth();FBDB=firebase.database();DBREF=FBDB.ref('hansucup');FB_OK=true;
+    FBAUTH=firebase.auth();FBDB=firebase.database();DBREF=FBDB.ref('hansuolympics');FB_OK=true;
     console.log('[Firebase] ✅ 초기화 완료');
   }catch(e){console.error('[Firebase] 초기화 오류:',e);return;}
 
