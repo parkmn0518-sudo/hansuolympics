@@ -642,7 +642,8 @@ function renderCalendar(){
     const evHtml=evs.map(function(ev){
       const del=isAdmin&&!ev.auto?'<button class="ev-del" onclick="deleteCalEvent(\''+ev.id+'\');event.stopPropagation()">✕</button>':'';
       const short=ev.title.length>10?ev.title.substring(0,10)+'…':ev.title;
-      return '<div class="cal-event '+ev.type+'" data-evid="'+ev.id+'" title="'+ev.title+'" style="cursor:pointer">'+short+del+'</div>';
+      const editAttr=isAdmin&&!ev.auto?' onclick="openEditCalEvent(\''+ev.id+'\')"':'';
+      return '<div class="cal-event '+ev.type+'" data-evid="'+ev.id+'" title="'+ev.title+'" style="cursor:'+(isAdmin&&!ev.auto?'pointer':'default')+'"'+editAttr+'>'+short+del+'</div>';
     }).join('');
     const more='';
     const addBtn='<button class="cal-add-cell-btn" onclick="openAddCalEvent(\''+ds+'\')" title="추가">+</button>';
@@ -666,6 +667,7 @@ function renderCalendar(){
 }
 function calNav(d){calMonth+=d;if(calMonth<0){calMonth=11;calYear--;}if(calMonth>11){calMonth=0;calYear++;}renderHome();}
 function openAddCalEvent(ds){document.getElementById('ceId').value='';document.getElementById('ceDate').value=ds;document.getElementById('ceTitle').value='';document.getElementById('ceType').value='ev-futsal';document.getElementById('ceNote').value='';document.getElementById('calEventModalTitle').textContent='📅 일정 추가';document.getElementById('calEventModal').classList.add('show');}
+function openEditCalEvent(id){const ev=calManualEvents.find(function(x){return String(x.id)===String(id);});if(!ev)return;document.getElementById('ceId').value=ev.id;document.getElementById('ceDate').value=ev.date||'';document.getElementById('ceTitle').value=ev.title||'';document.getElementById('ceType').value=ev.type||'ev-general';document.getElementById('ceNote').value=ev.note||'';document.getElementById('calEventModalTitle').textContent='✏️ 일정 수정';document.getElementById('calEventModal').classList.add('show');}
 function saveCalEvent(){
   const id=document.getElementById('ceId').value;
   const ev={date:document.getElementById('ceDate').value,title:document.getElementById('ceTitle').value.trim(),type:document.getElementById('ceType').value,note:document.getElementById('ceNote').value.trim(),auto:false};
