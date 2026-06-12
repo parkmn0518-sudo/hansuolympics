@@ -1433,6 +1433,8 @@ function saveMatch2(id, g, sport){
   var allM=[].concat(R.r1,R.qf,R.sf,R.third,R.final);
   var m=allM.find(function(x){return x.id===id;});
   if(!m) return;
+  var hn=document.getElementById('hn2_'+id);
+  var an=document.getElementById('an2_'+id);
   if(hn&&hn.value.trim()&&m.home)m.home.name=hn.value.trim();
   if(an&&an.value.trim()&&m.away)m.away.name=an.value.trim();
   m.date=document.getElementById('dt2_'+id).value;
@@ -2013,9 +2015,25 @@ function renderGlBody(){
         if(!S2[g])return;
         ['dodgeball','futsal'].forEach(function(sport){
           if(!S2[g][sport])return;
-          ensureTP(S2[g][sport]);
+          // 라운드 구조는 코드 기본값 유지, 경기 결과만 덮어쓰기
+          var defRounds=schedules2[g][sport];
+          S2[g][sport].forEach(function(srcRnd){
+            var defRnd=defRounds.find(function(r){return r.roundName===srcRnd.roundName;});
+            if(!defRnd)return;
+            srcRnd.games.forEach(function(srcGm,gi){
+              if(gi<defRnd.games.length){
+                var dg=defRnd.games[gi];
+                if(srcGm.date)dg.date=srcGm.date;
+                if(srcGm.time)dg.time=srcGm.time;
+                if(srcGm.teacher)dg.teacher=srcGm.teacher;
+                if(srcGm.referee)dg.referee=srcGm.referee;
+                if(srcGm.homeScore!=null)dg.homeScore=srcGm.homeScore;
+                if(srcGm.awayScore!=null)dg.awayScore=srcGm.awayScore;
+                if(srcGm.status)dg.status=srcGm.status;
+              }
+            });
+          });
         });
-        Object.assign(schedules2[g],S2[g]);
       });}catch(e){}}
   }catch(e){localStorage.removeItem('hansuolympics_cache');}
 })();
@@ -2092,7 +2110,25 @@ function startFirebase(){
           tournaments[g]=T[g];propagate(g);
         });
       }
-      if(d.schedules)Object.assign(schedules,JSON.parse(d.schedules));
+      if(d.schedules){try{const S=JSON.parse(d.schedules);[1,2,3].forEach(function(g){
+          if(!S[g])return;
+          S[g].forEach(function(srcRnd){
+            var defRnd=(schedules[g]||[]).find(function(r){return r.roundName===srcRnd.roundName;});
+            if(!defRnd)return;
+            srcRnd.games.forEach(function(srcGm,gi){
+              if(gi<defRnd.games.length){
+                var dg=defRnd.games[gi];
+                if(srcGm.date)dg.date=srcGm.date;
+                if(srcGm.time)dg.time=srcGm.time;
+                if(srcGm.teacher)dg.teacher=srcGm.teacher;
+                if(srcGm.referee)dg.referee=srcGm.referee;
+                if(srcGm.homeScore!=null)dg.homeScore=srcGm.homeScore;
+                if(srcGm.awayScore!=null)dg.awayScore=srcGm.awayScore;
+                if(srcGm.status)dg.status=srcGm.status;
+              }
+            });
+          });
+        });}catch(e){}}
       if(d.noticePosts)noticePosts=JSON.parse(d.noticePosts);
       if(d.studentPosts)studentPosts=JSON.parse(d.studentPosts);
       if(d.overviewData)overviewData=JSON.parse(d.overviewData);
@@ -2115,9 +2151,24 @@ function startFirebase(){
           if(!S2[g])return;
           ['dodgeball','futsal'].forEach(function(sport){
             if(!S2[g][sport])return;
-            ensureTP(S2[g][sport]);
+            var defRounds=schedules2[g][sport];
+            S2[g][sport].forEach(function(srcRnd){
+              var defRnd=defRounds.find(function(r){return r.roundName===srcRnd.roundName;});
+              if(!defRnd)return;
+              srcRnd.games.forEach(function(srcGm,gi){
+                if(gi<defRnd.games.length){
+                  var dg=defRnd.games[gi];
+                  if(srcGm.date)dg.date=srcGm.date;
+                  if(srcGm.time)dg.time=srcGm.time;
+                  if(srcGm.teacher)dg.teacher=srcGm.teacher;
+                  if(srcGm.referee)dg.referee=srcGm.referee;
+                  if(srcGm.homeScore!=null)dg.homeScore=srcGm.homeScore;
+                  if(srcGm.awayScore!=null)dg.awayScore=srcGm.awayScore;
+                  if(srcGm.status)dg.status=srcGm.status;
+                }
+              });
+            });
           });
-          Object.assign(schedules2[g],S2[g]);
         });}catch(e){}}
     }catch(e){console.error('[Firebase] 파싱 오류:',e);return;}
     const pid=(document.querySelector('.page.active')||{}).id||'';
