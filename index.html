@@ -1345,15 +1345,28 @@ function syncSchedToBracket2(g, sport, gm, ri, gi){
   }else{bm.homeScore=null;bm.awayScore=null;bm.status='scheduled';bm.winner=null;}
 }
 function syncBracketToSched2(g, sport, m, matchId){
-  var parts=matchId.split('_');
-  var rndKey=parts[parts.length-2];
-  var matchIdx=+parts[parts.length-1]-1;
+  // ID 예: "3_dodgeball_tp_1", "3_dodgeball_sf_2", "3_dodgeball_f_1"
   var rndNameMap={r1:'1라운드',qf:'8강',sf:'4강',tp:'3·4위전',f:'결승전'};
+  var rndKey=null, matchIdx=0;
+  // 뒤에서부터 파싱: 마지막=인덱스, 그 앞=라운드키
+  var parts=matchId.split('_');
+  matchIdx=+parts[parts.length-1]-1;
+  rndKey=parts[parts.length-2];
   var rndName=rndNameMap[rndKey];
-  if(!rndName||!schedules2[g][sport]) return;
+  if(!rndName||!schedules2[g]||!schedules2[g][sport]) return;
   var ri=-1;
   schedules2[g][sport].forEach(function(r,i){if(r.roundName===rndName)ri=i;});
-  if(ri<0) return;
+  if(ri<0){
+    // 3·4위전이 없으면 결승전 앞에 삽입
+    if(rndName==='3·4위전'){
+      var fi=-1;
+      schedules2[g][sport].forEach(function(r,i){if(r.roundName==='결승전')fi=i;});
+      var newRnd={roundName:'3·4위전',status:'예정',games:[{date:'',time:'',home:'TBD',away:'TBD',note:'',teacher:'',referee:'',homeScore:null,awayScore:null,status:'예정',venue:'체육관'}]};
+      if(fi>=0) schedules2[g][sport].splice(fi,0,newRnd);
+      else schedules2[g][sport].push(newRnd);
+      ri=fi>=0?fi:schedules2[g][sport].length-1;
+    } else return;
+  }
   while(schedules2[g][sport][ri].games.length<=matchIdx){
     schedules2[g][sport][ri].games.push({date:'',time:'',home:'TBD',away:'TBD',note:'',teacher:'',referee:'',homeScore:null,awayScore:null,status:'예정',venue:'체육관'});
   }
@@ -1366,7 +1379,6 @@ function syncBracketToSched2(g, sport, m, matchId){
   if(m.away&&m.away.name!=='TBD') gm.away=m.away.name;
   gm.homeScore=m.homeScore; gm.awayScore=m.awayScore;
   gm.status=m.status==='done'?'완료':'예정';
-  // 승자 이름도 동기화 (승부차기 등 직접 지정된 경우 포함)
   if(m.winner) gm.winner=m.winner.name||null;
   else gm.winner=null;
 }
