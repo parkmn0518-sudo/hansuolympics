@@ -16,7 +16,7 @@
   --futsal-bg:#dbeafe;--futsal-text:#1e3a8a;--futsal-border:#93c5fd;
   --tchouk-bg:#dcfce7;--tchouk-text:#14532d;--tchouk-border:#86efac;
   --volley-bg:#fef9c3;--volley-text:#713f12;--volley-border:#fde047;
-  --special-bg:#f3e8ff;--special-text:#6b21a8;
+  --special-bg:#f3e8ff;--special-text:#6b21a8;a
   --general-bg:#e0e4f0;--general-text:#1a2a5e;
   --max:860px;
   --dodgeball-color:#f97316;--dodgeball-bg:#fff4ed;--dodgeball-border:#fcd5b0;
@@ -1345,42 +1345,36 @@ function syncSchedToBracket2(g, sport, gm, ri, gi){
   }else{bm.homeScore=null;bm.awayScore=null;bm.status='scheduled';bm.winner=null;}
 }
 function syncBracketToSched2(g, sport, m, matchId){
-  // ID 예: "3_dodgeball_tp_1", "3_dodgeball_sf_2", "3_dodgeball_f_1"
-  var rndNameMap={r1:'1라운드',qf:'8강',sf:'4강',tp:'3·4위전',f:'결승전'};
-  var rndKey=null, matchIdx=0;
-  // 뒤에서부터 파싱: 마지막=인덱스, 그 앞=라운드키
-  var parts=matchId.split('_');
-  matchIdx=+parts[parts.length-1]-1;
-  rndKey=parts[parts.length-2];
-  var rndName=rndNameMap[rndKey];
-  if(!rndName||!schedules2[g]||!schedules2[g][sport]) return;
-  var ri=-1;
-  schedules2[g][sport].forEach(function(r,i){if(r.roundName===rndName)ri=i;});
-  if(ri<0){
-    // 3·4위전이 없으면 결승전 앞에 삽입
-    if(rndName==='3·4위전'){
-      var fi=-1;
-      schedules2[g][sport].forEach(function(r,i){if(r.roundName==='결승전')fi=i;});
-      var newRnd={roundName:'3·4위전',status:'예정',games:[{date:'',time:'',home:'TBD',away:'TBD',note:'',teacher:'',referee:'',homeScore:null,awayScore:null,status:'예정',venue:'체육관'}]};
-      if(fi>=0) schedules2[g][sport].splice(fi,0,newRnd);
-      else schedules2[g][sport].push(newRnd);
-      ri=fi>=0?fi:schedules2[g][sport].length-1;
-    } else return;
+  // m.round 직접 사용 (ID 파싱 오류 방지)
+  var rndName = m.round || null;
+  var parts = matchId.split('_');
+  var matchIdx = +parts[parts.length-1] - 1;
+  if(!rndName || !schedules2[g] || !schedules2[g][sport]) return;
+  var ri = -1;
+  schedules2[g][sport].forEach(function(r, i){ if(r.roundName === rndName) ri = i; });
+  if(ri < 0){
+    var newRnd = {roundName: rndName, status:'예정', games:[{date:'',time:'',home:'TBD',away:'TBD',note:'',teacher:'',referee:'',homeScore:null,awayScore:null,status:'예정',venue:'체육관'}]};
+    var fi = -1;
+    schedules2[g][sport].forEach(function(r,i){if(r.roundName==='결승전')fi=i;});
+    if(fi >= 0) schedules2[g][sport].splice(fi, 0, newRnd);
+    else schedules2[g][sport].push(newRnd);
+    schedules2[g][sport].forEach(function(r,i){if(r.roundName===rndName)ri=i;});
   }
-  while(schedules2[g][sport][ri].games.length<=matchIdx){
+  if(ri < 0) return;
+  while(schedules2[g][sport][ri].games.length <= matchIdx){
     schedules2[g][sport][ri].games.push({date:'',time:'',home:'TBD',away:'TBD',note:'',teacher:'',referee:'',homeScore:null,awayScore:null,status:'예정',venue:'체육관'});
   }
-  var gm=schedules2[g][sport][ri].games[matchIdx];
-  if(m.date) gm.date=m.date;
-  if(m.time!==undefined) gm.time=m.time;
-  if(m.teacher!==undefined) gm.teacher=m.teacher;
-  if(m.referee!==undefined) gm.referee=m.referee;
-  if(m.home&&m.home.name!=='TBD') gm.home=m.home.name;
-  if(m.away&&m.away.name!=='TBD') gm.away=m.away.name;
-  gm.homeScore=m.homeScore; gm.awayScore=m.awayScore;
-  gm.status=m.status==='done'?'완료':'예정';
-  if(m.winner) gm.winner=m.winner.name||null;
-  else gm.winner=null;
+  var gm = schedules2[g][sport][ri].games[matchIdx];
+  if(m.date) gm.date = m.date;
+  if(m.time !== undefined) gm.time = m.time;
+  if(m.teacher !== undefined) gm.teacher = m.teacher;
+  if(m.referee !== undefined) gm.referee = m.referee;
+  if(m.home && m.home.name !== 'TBD') gm.home = m.home.name;
+  if(m.away && m.away.name !== 'TBD') gm.away = m.away.name;
+  gm.homeScore = m.homeScore; gm.awayScore = m.awayScore;
+  gm.status = m.status === 'done' ? '완료' : '예정';
+  if(m.winner) gm.winner = m.winner.name || null;
+  else gm.winner = null;
 }
 function matchNodeHTML2(m, g, sport){
   var sm = sportMeta[sport];
