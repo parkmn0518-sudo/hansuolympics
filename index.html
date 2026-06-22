@@ -774,7 +774,7 @@ function syncBracketToSched(g, m, matchId){
 // 경기 번호 매핑
 var MATCH_NUM_MAP = {
   r1_1:1, r1_2:2,
-  qf_1:3, qf_2:4, qf_3:5, qf_4:6,
+  qf_1:3, qf_2:5, qf_3:4, qf_4:6,
   sf_1:7, sf_2:8,
   tp_1:9,
   f_1:10
@@ -797,7 +797,7 @@ function getSchedMatchNum(g, ri, gi){
   return MATCH_NUM_MAP[key] || '';
 }
 
-function fmtDate(d){if(!d)return'-';const p=d.split('-');return(+p[1])+'월 '+(+p[2])+'일';}
+function fmtDate(d){if(!d)return'-';const p=d.split('-');const dt=new Date(+p[0],+p[1]-1,+p[2]);const day=DAYS_KO[dt.getDay()];return(+p[1])+'월 '+(+p[2])+'일('+day+')';}
 
 /* ① 경기일정 테이블 — 심판 컬럼 추가 */
 function renderSchedule(g){
@@ -1806,7 +1806,7 @@ function matchBox(x,y,m,color,nodeBg,num){
   var hn=tn(m.home); if(hn.length>5)hn=hn.slice(0,5);
   var an=tn(m.away); if(an.length>5)an=an.slice(0,5);
   var dateStr='날짜 미정';
-  if(m.date){var dp=m.date.split('-');dateStr=(+dp[1])+'월 '+(+dp[2])+'일'+(m.time?' '+m.time:'');}
+  if(m.date){var dp=m.date.split('-');var dDt=new Date(+dp[0],+dp[1]-1,+dp[2]);var dDay=DAYS_KO[dDt.getDay()];dateStr=(+dp[1])+'월 '+(+dp[2])+'일('+dDay+')'+(m.time?' '+m.time:'');}
   else if(m.time){dateStr=m.time;}
   var infoStr='';
   if(m.teacher)infoStr+='교사: '+m.teacher;
