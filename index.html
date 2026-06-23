@@ -218,6 +218,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .sched-table td{padding:7px 6px;text-align:center;border-bottom:1px solid var(--border);vertical-align:middle;font-size:11px;}
 .sched-table tr:last-child td{border-bottom:none;}
 .vs-cell{font-weight:700;color:var(--text);}
+.sched-table .sx-e{display:none;}
+.sched-table tr.editing .sx-v{display:none!important;}
+.sched-table tr.editing .sx-e{display:inline-block;}
+.sched-table tr.editing .sx-e.edit-ctrl-col{display:flex;flex-direction:column;gap:3px;align-items:stretch;}
+.sched-table tr.editing td{background:#fffbe8!important;}
+.edit-ctrl-col select{width:100%;}
 .admin-game-bar{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
 .add-game-btn{padding:5px 12px;background:var(--navy);color:var(--white);border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;}
 .del-round-btn{padding:5px 9px;background:#fee2e2;color:#991b1b;border:none;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;}
@@ -1509,21 +1515,64 @@ function renderSchedule2(g, sport){
     var topBorder=isNewRound&&idx2>0?'border-top:1px solid #aab0c4;':'';
     var hs=(m.homeScore!==null&&m.homeScore!==undefined)?m.homeScore:'-';
     var as_=(m.awayScore!==null&&m.awayScore!==undefined)?m.awayScore:'-';
-    var resultCell='<td style="font-weight:700;text-align:center;">'+hs+'</td><td style="color:var(--text2);text-align:center;">:</td><td style="font-weight:700;text-align:center;">'+as_+'</td>';
-    var adm=isAdmin?'<td><button class="edit-game-btn" onclick="toggleScheduleEdit2(\''+m.id+'\');event.stopPropagation()">수정</button></td>':'';
     var matchNum=item.num;
     var hNm=m.home?m.home.name:'TBD', aNm=m.away?m.away.name:'TBD';
-    var editPanel=isAdmin?matchEditPanelRow(m,g,sport):'';
-    return '<tr style="background:'+bg+';border-left:3px solid '+border+';'+topBorder+'">'+
+    var id=m.id;
+    var dateCell='<td>'+
+      '<span class="sx-v">'+fmtDate(m.date)+'</span>'+
+      '<input type="date" class="sx-e team-inp" style="width:108px;" id="dt2_'+id+'" value="'+(m.date||'')+'">'+
+      '</td>';
+    var timeCell='<td>'+
+      '<span class="sx-v">'+(m.time||'-')+'</span>'+
+      '<input type="text" class="sx-e team-inp" style="width:58px;" id="tm2_'+id+'" value="'+(m.time||'')+'" placeholder="예: 5교시">'+
+      '</td>';
+    var homeScCell='<td style="text-align:center;">'+
+      '<span class="sx-v" style="font-weight:700;">'+hs+'</span>'+
+      '<input type="number" min="0" max="99" class="sx-e sc-inp" id="hs2_'+id+'" value="'+(m.homeScore!=null?m.homeScore:'')+'">'+
+      '</td>';
+    var awayScCell='<td style="text-align:center;">'+
+      '<span class="sx-v" style="font-weight:700;">'+as_+'</span>'+
+      '<input type="number" min="0" max="99" class="sx-e sc-inp" id="as2_'+id+'" value="'+(m.awayScore!=null?m.awayScore:'')+'">'+
+      '</td>';
+    var teacherCell='<td>'+
+      '<span class="sx-v" style="font-size:10px;color:var(--text2);">'+(m.teacher||'')+'</span>'+
+      '<input type="text" class="sx-e team-inp" style="width:58px;font-size:10px;" id="tc2_'+id+'" value="'+(m.teacher||'')+'">'+
+      '</td>';
+    var refCell='<td>'+
+      '<span class="sx-v" style="font-size:10px;color:var(--text2);">'+(m.referee||'')+'</span>'+
+      '<input type="text" class="sx-e team-inp" style="width:58px;font-size:10px;" id="rf2_'+id+'" value="'+(m.referee||'')+'">'+
+      '</td>';
+    var admCell='';
+    if(isAdmin){
+      admCell='<td style="white-space:nowrap;">'+
+        '<button class="sx-v edit-game-btn" onclick="toggleScheduleEdit2(\''+id+'\');event.stopPropagation()">수정</button>'+
+        '<div class="sx-e edit-ctrl-col">'+
+          '<select class="st-sel" id="st2_'+id+'" style="font-size:9px;padding:2px 3px;">'+
+            '<option value="scheduled" '+(m.status==='scheduled'?'selected':'')+'>예정</option>'+
+            '<option value="done" '+(m.status==='done'?'selected':'')+'>완료</option>'+
+          '</select>'+
+          '<select class="st-sel" id="wn2_'+id+'" style="font-size:9px;padding:2px 3px;" title="동점 승부차기 시 직접 선택">'+
+            '<option value="">자동판정</option>'+
+            '<option value="home" '+(m.winner&&m.home&&m.winner.id===m.home.id?'selected':'')+'>'+hNm+' 승</option>'+
+            '<option value="away" '+(m.winner&&m.away&&m.winner.id===m.away.id?'selected':'')+'>'+aNm+' 승</option>'+
+          '</select>'+
+          '<div style="display:flex;gap:3px;">'+
+            '<button class="save-btn" style="padding:3px 6px;font-size:9px;" onclick="saveMatch2(\''+id+'\','+g+',\''+sport+'\');event.stopPropagation()">저장</button>'+
+            '<button class="edit-game-btn" style="padding:3px 6px;" onclick="cancelScheduleEdit2(\''+id+'\','+g+',\''+sport+'\');event.stopPropagation()">취소</button>'+
+          '</div>'+
+        '</div>'+
+        '</td>';
+    }
+    return '<tr id="row2_'+id+'" style="background:'+bg+';border-left:3px solid '+border+';'+topBorder+'">'+
       '<td style="font-size:11px;font-weight:900;color:var(--navy);text-align:center;min-width:22px;">'+matchNum+'</td>'+
       '<td style="font-size:10px;font-weight:700;color:var(--text);">'+item.roundName+'</td>'+
-      '<td>'+fmtDate(m.date)+'</td>'+
-      '<td>'+(m.time||'-')+'</td>'+
+      dateCell+timeCell+
       '<td class="vs-cell">'+hNm+' vs '+aNm+'</td>'+
-      resultCell+
-      '<td style="font-size:10px;color:var(--text2);">'+(m.teacher||'')+'</td>'+
-      '<td style="font-size:10px;color:var(--text2);">'+(m.referee||'')+'</td>'+
-      adm+'</tr>'+editPanel;
+      homeScCell+
+      '<td style="color:var(--text2);text-align:center;">:</td>'+
+      awayScCell+
+      teacherCell+refCell+admCell+
+      '</tr>';
   }).join('');
   return '<div class="round-block"><div style="overflow-x:auto;"><table class="sched-table">'+
     '<thead><tr>'+
@@ -1535,28 +1584,32 @@ function renderSchedule2(g, sport){
     (isAdmin?'<th class="'+thC+'">관리</th>':'')+
     '</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
 }
-function matchEditPanelRow(m,g,sport){
-  var hNm=m.home?m.home.name:'TBD', aNm=m.away?m.away.name:'TBD';
-  return '<tr id="sched2_edit_'+m.id+'" class="sched-edit-row" style="display:none;"><td colspan="11" style="padding:8px;">'+
-    '<div class="edit-row"><span class="edit-label">날짜</span><input class="team-inp" type="date" id="dt2_'+m.id+'" value="'+(m.date||'')+'"></div>'+
-    '<div class="edit-row"><span class="edit-label">교시</span><input class="team-inp" type="text" id="tm2_'+m.id+'" value="'+(m.time||'')+'" placeholder="예: 5교시"></div>'+
-    '<div class="edit-row"><span class="edit-label">교사</span><input class="team-inp" type="text" id="tc2_'+m.id+'" value="'+(m.teacher||'')+'"></div>'+
-    '<div class="edit-row"><span class="edit-label">도우미</span><input class="team-inp" type="text" id="rf2_'+m.id+'" value="'+(m.referee||'')+'"></div>'+
-    '<div class="edit-row"><span class="edit-label">'+hNm+'</span>'+
-    '<input class="sc-inp" type="number" min="0" max="99" id="hs2_'+m.id+'" value="'+(m.homeScore!=null?m.homeScore:'')+'">'+
-    '<span style="font-weight:700;color:var(--text2)">:</span>'+
-    '<input class="sc-inp" type="number" min="0" max="99" id="as2_'+m.id+'" value="'+(m.awayScore!=null?m.awayScore:'')+'">'+
-    '<span class="edit-label">'+aNm+'</span></div>'+
-    '<div class="edit-row"><span class="edit-label">상태</span><select class="st-sel" id="st2_'+m.id+'"><option value="scheduled" '+(m.status==='scheduled'?'selected':'')+'>예정</option><option value="done" '+(m.status==='done'?'selected':'')+'>완료</option></select></div>'+
-    '<div class="edit-row"><span class="edit-label">승자</span><select class="st-sel" id="wn2_'+m.id+'">'+
-    '<option value="" '+((!m.winner)?'selected':'')+'>— 자동판정 —</option>'+
-    '<option value="home" '+(m.winner&&m.home&&m.winner.id===m.home.id?'selected':'')+'>'+hNm+'</option>'+
-    '<option value="away" '+(m.winner&&m.away&&m.winner.id===m.away.id?'selected':'')+'>'+aNm+'</option>'+
-    '</select><span style="font-size:10px;color:var(--text2);margin-left:4px;">동점 승부차기 시 직접 선택</span></div>'+
-    '<div class="edit-row" style="justify-content:flex-end;"><button class="save-btn" onclick="saveMatch2(\''+m.id+'\','+g+',\''+sport+'\');toggleScheduleEdit2(\''+m.id+'\')">💾 저장</button></div>'+
-    '</td></tr>';
+function findMatch2ById(g,sport,id){
+  var R=tournaments2[g][sport].rounds;
+  var allM=[].concat(R.r1,R.qf,R.sf,R.third,R.final);
+  return allM.find(function(x){return x.id===id;});
 }
-function toggleScheduleEdit2(id){var el=document.getElementById('sched2_edit_'+id);if(el)el.style.display=el.style.display==='none'?'table-row':'none';}
+function toggleScheduleEdit2(id){
+  var row=document.getElementById('row2_'+id);
+  if(!row) return;
+  row.classList.toggle('editing');
+}
+function cancelScheduleEdit2(id,g,sport){
+  var row=document.getElementById('row2_'+id);
+  if(!row) return;
+  var m=findMatch2ById(g,sport,id);
+  if(m){
+    var dt=document.getElementById('dt2_'+id); if(dt)dt.value=m.date||'';
+    var tm=document.getElementById('tm2_'+id); if(tm)tm.value=m.time||'';
+    var tc=document.getElementById('tc2_'+id); if(tc)tc.value=m.teacher||'';
+    var rf=document.getElementById('rf2_'+id); if(rf)rf.value=m.referee||'';
+    var hsEl=document.getElementById('hs2_'+id); if(hsEl)hsEl.value=(m.homeScore!=null?m.homeScore:'');
+    var asEl=document.getElementById('as2_'+id); if(asEl)asEl.value=(m.awayScore!=null?m.awayScore:'');
+    var stEl=document.getElementById('st2_'+id); if(stEl)stEl.value=m.status||'scheduled';
+    var wnEl=document.getElementById('wn2_'+id); if(wnEl)wnEl.value='';
+  }
+  row.classList.remove('editing');
+}
 function getSchedMatchNum2(g, sport, ri, gi){
   var rndKey={'1라운드':'r1','8강':'qf','4강':'sf','3·4위전':'tp','결승전':'f'};
   var rnd=schedules2[g][sport][ri];
