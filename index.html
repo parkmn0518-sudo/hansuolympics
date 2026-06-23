@@ -1625,7 +1625,7 @@ function drawBracketLines(g, sport, _retry){
     [R.sf[0], R.final[0]],
     [R.sf[1], R.final[0]]
   ];
-  var lineColor='#64748b';
+  var lineColor=gradeNodeBorder[g]||'#cbd5e1';
   var lines='';
   pairs.forEach(function(p){
     var srcEl=elFor(p[0]), tgtEl=elFor(p[1]);
