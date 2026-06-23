@@ -147,8 +147,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .sport-badge.volleyball{background:var(--volley-text);color:#fff;}
 .sport-badge.dodgeball{background:var(--dodgeball-color);color:#fff;}
 .sport-badge.futsal2{background:var(--futsal2-color);color:#fff;}
-.bracket-wrap{overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
-.round-col-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));grid-template-rows:auto repeat(4,minmax(64px,auto)) minmax(0,auto);column-gap:34px;row-gap:6px;position:relative;}
+.bracket-wrap{overflow-x:auto;overflow-y:visible;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+.round-col-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));grid-template-rows:auto repeat(4,minmax(64px,auto));column-gap:34px;row-gap:6px;position:relative;}
 .round-col-grid>.match-cell{align-self:center;}
 .round-col-label{text-align:center;font-size:11px;font-weight:700;padding:5px 7px;border-radius:6px 6px 0 0;margin:0 4px;}
 .round-col-label.futsal{background:var(--futsal-text);color:#fff;}
@@ -1659,28 +1659,11 @@ function drawBracketLines(g, sport, _retry){
   svgEl.setAttribute('height', h);
   svgEl.innerHTML=lines;
 }
-function snugThirdUnderFinal(g, sport, _retry){
-  var R=tournaments2[g][sport].rounds;
-  var finalEl=document.getElementById('node2_'+R.final[0].id);
-  var thirdCell=document.getElementById('thirdcell_'+g+'_'+sport);
-  if(!finalEl||!thirdCell) return;
-  var fRect=finalEl.getBoundingClientRect();
-  if(!fRect.height){
-    if(!_retry||_retry<5) setTimeout(function(){snugThirdUnderFinal(g,sport,(_retry||0)+1);},120);
-    return;
-  }
-  thirdCell.style.marginTop='0px';
-  var tRect=thirdCell.getBoundingClientRect();
-  var gap=14;
-  var delta=(fRect.bottom+gap)-tRect.top;
-  thirdCell.style.marginTop=delta+'px';
-}
 window.addEventListener('resize', function(){
   clearTimeout(window._bracketLineResizeT);
   window._bracketLineResizeT=setTimeout(function(){
     if(_lastBracketG&&_lastBracketSport){
       try{drawBracketLines(_lastBracketG,_lastBracketSport);}catch(e){}
-      try{snugThirdUnderFinal(_lastBracketG,_lastBracketSport);}catch(e){}
     }
   },150);
 });
@@ -1725,8 +1708,10 @@ function renderBracket2(g, sport){
     cell(R.qf[3],'qf',3,2,5,6)+              // 6번
     cell(R.sf[0],'sf',0,3,2,4)+              // 7번: 3·5번 사이
     cell(R.sf[1],'sf',1,3,4,6)+              // 8번: 4·6번 사이
-    cell(R.final[0],'f',0,4,2,6)+             // 10번: 7·8번 정가운데 (단독 센터)
-    '<div class="match-cell" id="thirdcell_'+g+'_'+sport+'" style="grid-column:4;grid-row:6/7;">'+matchNodeHTML2(R.third[0],g,sport,'tp',0)+'</div>'; // 9번: 결승전 바로 아래(JS로 위치 보정)
+    '<div class="match-cell" style="grid-column:4;grid-row:2/6;display:flex;flex-direction:column;gap:14px;align-self:center;">'+
+      matchNodeHTML2(R.final[0],g,sport,'f',0)+
+      matchNodeHTML2(R.third[0],g,sport,'tp',0)+
+    '</div>';
   var bracketHTML=
     '<div class="bracket-header"><div class="grade-badge '+lCls+'">'+info.name+'</div><div class="sport-badge '+lCls+'">'+sm.icon+' '+sm.name+'</div><div style="font-size:12px;color:var(--text2);margin-left:auto;">'+done+'/10 완료</div></div>'+
     podium+
@@ -1741,8 +1726,7 @@ function renderBracket2(g, sport){
   document.getElementById('page-bracket'+g).innerHTML=tabBar+bracketHTML+schedHTML;
   _lastBracketG=g; _lastBracketSport=sport;
   try{drawBracketLines(g,sport);}catch(e){console.error('[대진표 라인] 오류:',e);}
-  try{snugThirdUnderFinal(g,sport);}catch(e){console.error('[3·4위전 위치] 오류:',e);}
-  setTimeout(function(){try{drawBracketLines(g,sport);}catch(e){}try{snugThirdUnderFinal(g,sport);}catch(e){}},80);
+  setTimeout(function(){try{drawBracketLines(g,sport);}catch(e){}},80);
   // 관리자 라운드 추가 버튼
   if(isAdmin){
     var adminDiv=document.createElement('div');
