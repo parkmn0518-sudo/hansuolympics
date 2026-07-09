@@ -1572,8 +1572,8 @@ function renderSchedule2(g, sport){
           '</select>'+
           '<select class="st-sel" id="swn2_'+id+'" style="font-size:9px;padding:2px 3px;" title="동점 승부차기 시 직접 선택">'+
             '<option value="">자동판정</option>'+
-            '<option value="home" '+(m.winner&&m.home&&m.winner.id===m.home.id?'selected':'')+'>'+hNm+' 승</option>'+
-            '<option value="away" '+(m.winner&&m.away&&m.winner.id===m.away.id?'selected':'')+'>'+aNm+' 승</option>'+
+            '<option value="home" '+(m.winner&&m.home&&(m.winner===m.home||m.winner.name===m.home.name)?'selected':'')+'>'+hNm+' 승</option>'+
+            '<option value="away" '+(m.winner&&m.away&&(m.winner===m.away||m.winner.name===m.away.name)?'selected':'')+'>'+aNm+' 승</option>'+
           '</select>'+
           '<div style="display:flex;gap:3px;">'+
             '<button class="save-btn" style="padding:3px 6px;font-size:9px;" onclick="saveScheduleMatch2(\''+id+'\','+g+',\''+sport+'\');event.stopPropagation()">저장</button>'+
@@ -1891,9 +1891,9 @@ function renderHome(){
         var hNm=m.home?m.home.name:'TBD', aNm=m.away?m.away.name:'TBD';
         var hs=m.homeScore!=null?m.homeScore:'-';
         var as_=m.awayScore!=null?m.awayScore:'-';
-        var hwin=m.winner&&m.home&&(m.winner===m.home||(m.winner.id&&m.home.id&&m.winner.id===m.home.id));
-        var awin=m.winner&&m.away&&(m.winner===m.away||(m.winner.id&&m.away.id&&m.winner.id===m.away.id));
-        if(!hwin&&!awin&&m.homeScore!=null&&m.awayScore!=null){hwin=m.homeScore>m.awayScore;awin=m.awayScore>m.homeScore;}
+        var hwin,awin;
+        if(m.homeScore!=null&&m.awayScore!=null&&m.homeScore!==m.awayScore){hwin=m.homeScore>m.awayScore;awin=m.awayScore>m.homeScore;}
+        else{hwin=!!(m.winner&&m.home&&(m.winner===m.home||m.winner.name===m.home.name));awin=!!(m.winner&&m.away&&(m.winner===m.away||m.winner.name===m.away.name));}
         var winnerNm=hwin?hNm:awin?aNm:'';
         var dts=(m.date?fmtDate(m.date):'')+(m.time?' '+m.time:'');
         var gbg=d.g===1?'var(--futsal-bg)':d.g===2?'var(--tchouk-bg)':'var(--volley-bg)';
@@ -2191,9 +2191,9 @@ function renderGlBody(){
           if(!statusOk) return;
           totalCount++;
           var hNm=m.home?m.home.name:'TBD', aNm=m.away?m.away.name:'TBD';
-          var hwin=isDone&&m.winner&&m.home&&(m.winner===m.home||(m.winner.id&&m.home.id&&m.winner.id===m.home.id));
-          var awin=isDone&&m.winner&&m.away&&(m.winner===m.away||(m.winner.id&&m.away.id&&m.winner.id===m.away.id));
-          if(isDone&&!hwin&&!awin&&m.homeScore!=null&&m.awayScore!=null){hwin=m.homeScore>m.awayScore;awin=m.awayScore>m.homeScore;}
+          var hwin,awin;
+          if(isDone&&m.homeScore!=null&&m.awayScore!=null&&m.homeScore!==m.awayScore){hwin=m.homeScore>m.awayScore;awin=m.awayScore>m.homeScore;}
+          else{hwin=isDone&&!!(m.winner&&m.home&&(m.winner===m.home||m.winner.name===m.home.name));awin=isDone&&!!(m.winner&&m.away&&(m.winner===m.away||m.winner.name===m.away.name));}
           var hs=m.homeScore!=null?m.homeScore:'-';
           var as_=m.awayScore!=null?m.awayScore:'-';
           var winnerNm=hwin?hNm:awin?aNm:'';
@@ -2233,8 +2233,8 @@ function renderGlBody(){
         const R=T[g].rounds;
         [].concat(R.r1,R.qf,R.sf,R.third||[],R.final).forEach(function(m){
           if(!m||!m.winner)return;
-          if(m.home&&m.winner.id===m.home.id)m.winner=m.home;
-          else if(m.away&&m.winner.id===m.away.id)m.winner=m.away;
+          if(m.home&&m.winner.name===m.home.name)m.winner=m.home;
+          else if(m.away&&m.winner.name===m.away.name)m.winner=m.away;
           else m.winner=null;
         });
         tournaments[g]=T[g];propagate(g);
@@ -2350,8 +2350,8 @@ function startFirebase(){
           const R=T[g].rounds;
           [].concat(R.r1,R.qf,R.sf,R.third||[],R.final).forEach(function(m){
             if(!m||!m.winner)return;
-            if(m.home&&m.winner.id===m.home.id)m.winner=m.home;
-            else if(m.away&&m.winner.id===m.away.id)m.winner=m.away;
+            if(m.home&&m.winner.name===m.home.name)m.winner=m.home;
+            else if(m.away&&m.winner.name===m.away.name)m.winner=m.away;
             else m.winner=null;
           });
           tournaments[g]=T[g];propagate(g);
