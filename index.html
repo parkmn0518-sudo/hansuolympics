@@ -351,6 +351,24 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .ag-page{padding:12px 10px 30px;}
 .ag-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 @media(max-width:600px){.ag-grid{grid-template-columns:1fr;}}
+/* 모바일: 경기일정 표 한 줄 최적화 */
+@media(max-width:600px){
+  .sched-table th,.sched-table td{padding:5px 3px;font-size:10px;}
+  .sched-table .col-teacher,.sched-table .col-ref{display:none;}
+  .sched-table .vs-cell{font-size:10px;white-space:nowrap;}
+  .sched-table .edit-game-btn{font-size:8px;padding:2px 4px;}
+  .sched-table .sc-inp{width:36px;font-size:12px;padding:3px;}
+  .sched-table .team-inp{font-size:10px;padding:3px 4px;}
+  .sched-table .st-sel{font-size:8px;padding:1px 2px;}
+  .sched-table .save-btn{font-size:8px;padding:2px 5px;}
+  .sched-table tr.editing .sx-e.edit-ctrl-col{gap:2px;}
+  .col-info-btn{display:table-cell!important;}
+  .sched-detail-row{display:none;}
+  .sched-detail-row.open{display:table-row!important;}
+}
+.col-info-btn{display:none;}
+.sched-detail-row{display:none;}
+.sched-detail-row td{font-size:10px;padding:4px 8px!important;color:var(--text2);text-align:left!important;}
 .ag-bracket-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
 .ag-bracket-header{padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#fff;}
 .ag-bracket-header.dodgeball{background:var(--dodgeball-color);}
@@ -1553,11 +1571,11 @@ function renderSchedule2(g, sport){
       '<span class="sx-v" style="font-weight:700;">'+as_+'</span>'+
       '<input type="number" min="0" max="99" class="sx-e sc-inp" id="sas2_'+id+'" value="'+(m.awayScore!=null?m.awayScore:'')+'">'+
       '</td>';
-    var teacherCell='<td>'+
+    var teacherCell='<td class="col-teacher">'+
       '<span class="sx-v" style="font-size:10px;color:var(--text2);">'+(m.teacher||'')+'</span>'+
       '<input type="text" class="sx-e team-inp" style="width:58px;font-size:10px;" id="stc2_'+id+'" value="'+(m.teacher||'')+'">'+
       '</td>';
-    var refCell='<td>'+
+    var refCell='<td class="col-ref">'+
       '<span class="sx-v" style="font-size:10px;color:var(--text2);">'+(m.referee||'')+'</span>'+
       '<input type="text" class="sx-e team-inp" style="width:58px;font-size:10px;" id="srf2_'+id+'" value="'+(m.referee||'')+'">'+
       '</td>';
@@ -1582,6 +1600,14 @@ function renderSchedule2(g, sport){
         '</div>'+
         '</td>';
     }
+    var infoBtn='<td class="col-info-btn" style="white-space:nowrap;">'+
+      '<button class="edit-game-btn" style="font-size:9px;padding:2px 5px;" onclick="toggleSchedDetail(\''+id+'\');event.stopPropagation()">ℹ️</button>'+
+      '</td>';
+    var detailRow='<tr class="sched-detail-row" id="sdetail_'+id+'" style="background:'+bg+';">'+
+      '<td colspan="'+(isAdmin?'10':'9')+'" style="border-left:3px solid '+border+';">'+
+      '<span style="margin-right:10px;">👨‍🏫 교사: <strong>'+(m.teacher||'미정')+'</strong></span>'+
+      '<span>🏁 도우미: <strong>'+(m.referee||'미정')+'</strong></span>'+
+      '</td></tr>';
     return '<tr id="row2_'+id+'" style="background:'+bg+';border-left:3px solid '+border+';'+topBorder+'">'+
       '<td style="font-size:11px;font-weight:900;color:var(--navy);text-align:center;min-width:22px;">'+matchNum+'</td>'+
       '<td style="font-size:10px;font-weight:700;color:var(--text);">'+item.roundName+'</td>'+
@@ -1590,8 +1616,8 @@ function renderSchedule2(g, sport){
       homeScCell+
       '<td style="color:var(--text2);text-align:center;">:</td>'+
       awayScCell+
-      teacherCell+refCell+admCell+
-      '</tr>';
+      teacherCell+refCell+infoBtn+admCell+
+      '</tr>'+detailRow;
   }).join('');
   return '<div class="round-block"><div style="overflow-x:auto;"><table class="sched-table">'+
     '<thead><tr>'+
@@ -1599,7 +1625,8 @@ function renderSchedule2(g, sport){
     '<th class="'+thC+'">날짜</th><th class="'+thC+'">교시</th>'+
     '<th class="'+thC+'">대전</th>'+
     '<th class="'+thC+'">홈점수</th><th class="'+thC+'"></th><th class="'+thC+'">원정점수</th>'+
-    '<th class="'+thC+'">교사</th><th class="'+thC+'">도우미</th>'+
+    '<th class="'+thC+' col-teacher">교사</th><th class="'+thC+' col-ref">도우미</th>'+
+    '<th class="'+thC+' col-info-btn"></th>'+
     (isAdmin?'<th class="'+thC+'">관리</th>':'')+
     '</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
 }
@@ -1612,6 +1639,11 @@ function toggleScheduleEdit2(id){
   var row=document.getElementById('row2_'+id);
   if(!row) return;
   row.classList.toggle('editing');
+}
+function toggleSchedDetail(id){
+  var row=document.getElementById('sdetail_'+id);
+  if(!row) return;
+  row.classList.toggle('open');
 }
 function cancelScheduleEdit2(id,g,sport){
   var row=document.getElementById('row2_'+id);
