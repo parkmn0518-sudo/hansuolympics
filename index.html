@@ -1398,8 +1398,16 @@ function syncBracketToSched2(g, sport, m, matchId){
 function matchNodeHTML2(m, g, sport, roundKey, idx){
   var sm = sportMeta[sport];
   var cls = sm.cls;
-  var hWin=m.status==='done'&&m.winner&&m.home&&(m.winner===m.home||(m.winner.id&&m.home.id&&m.winner.id===m.home.id)||(m.homeScore!=null&&m.awayScore!=null&&m.homeScore>m.awayScore));
-  var aWin=m.status==='done'&&m.winner&&m.away&&(m.winner===m.away||(m.winner.id&&m.away.id&&m.winner.id===m.away.id)||(m.homeScore!=null&&m.awayScore!=null&&m.awayScore>m.homeScore));
+  // 점수가 다를 땐 점수를 소스로 / 동점이거나 점수 없을 땐 winner 이름 비교 (ID 충돌 방지)
+  var hWin=false, aWin=false;
+  if(m.status==='done'){
+    if(m.homeScore!=null&&m.awayScore!=null&&m.homeScore!==m.awayScore){
+      hWin=m.homeScore>m.awayScore; aWin=m.awayScore>m.homeScore;
+    } else {
+      hWin=!!(m.winner&&m.home&&(m.winner===m.home||m.winner.name===m.home.name));
+      aWin=!!(m.winner&&m.away&&(m.winner===m.away||m.winner.name===m.away.name));
+    }
+  }
   var statusTxt=m.status==='done'?'완료':'예정';
   var pillCls=m.status==='done'?'pill-done':'pill-scheduled';
   var hNm=teamLabel(m.home), aNm=teamLabel(m.away);
@@ -1430,8 +1438,8 @@ function matchNodeHTML2(m, g, sport, roundKey, idx){
     '<div class="edit-row"><span class="edit-label">상태</span><select class="st-sel" id="st2_'+m.id+'"><option value="scheduled" '+(m.status==='scheduled'?'selected':'')+'>예정</option><option value="done" '+(m.status==='done'?'selected':'')+'>완료</option></select></div>'+
     '<div class="edit-row"><span class="edit-label">승자</span><select class="st-sel" id="wn2_'+m.id+'">'+
     '<option value="" '+((!m.winner)?'selected':'')+'>— 자동판정 —</option>'+
-    '<option value="home" '+(m.winner&&m.home&&m.winner.id===m.home.id?'selected':'')+'>'+hNm+'</option>'+
-    '<option value="away" '+(m.winner&&m.away&&m.winner.id===m.away.id?'selected':'')+'>'+aNm+'</option>'+
+    '<option value="home" '+(m.winner&&m.home&&(m.winner===m.home||m.winner.name===m.home.name)?'selected':'')+'>'+hNm+'</option>'+
+    '<option value="away" '+(m.winner&&m.away&&(m.winner===m.away||m.winner.name===m.away.name)?'selected':'')+'>'+aNm+'</option>'+
     '</select><span style="font-size:10px;color:var(--text2);margin-left:4px;">동점 승부차기 시 직접 선택</span></div>'+
     '<div class="edit-row" style="justify-content:flex-end;"><button class="save-btn" onclick="saveMatch2(\''+m.id+'\','+g+',\''+sport+'\')">💾 저장</button></div>'+
     '</div>':'';
