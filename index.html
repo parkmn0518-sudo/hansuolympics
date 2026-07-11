@@ -2304,11 +2304,13 @@ function renderGlBody(){
         });
         tournaments2[g]=T2[g];
       });}catch(e){console.error('[Cache] tournaments2 로드 오류:',e);}}
-    if(d.schedules2){try{const S2=JSON.parse(d.schedules2);[1,2,3].forEach(function(g){
+    if(d.schedules2){try{const S2=JSON.parse(d.schedules2);
+      var rndKey2={'1라운드':'r1','8강':'qf','4강':'sf','3·4위전':'third','결승전':'final'};
+      [1,2,3].forEach(function(g){
         if(!S2[g])return;
         ['dodgeball','futsal'].forEach(function(sport){
           if(!S2[g][sport])return;
-          // 라운드 구조는 코드 기본값 유지, 경기 결과만 덮어쓰기
+          // schedules2 → schedules2 기본값 업데이트
           var defRounds=schedules2[g][sport];
           S2[g][sport].forEach(function(srcRnd){
             var defRnd=defRounds.find(function(r){return r.roundName===srcRnd.roundName;});
@@ -2326,8 +2328,31 @@ function renderGlBody(){
               }
             });
           });
+          // schedules2 → tournaments2 동기화 (점수/날짜가 tournaments2에 없으면 채워줌)
+          S2[g][sport].forEach(function(srcRnd){
+            var rk=rndKey2[srcRnd.roundName]; if(!rk)return;
+            var arr=(tournaments2[g][sport].rounds[rk]||[]);
+            srcRnd.games.forEach(function(srcGm,gi){
+              if(gi>=arr.length)return;
+              var bm=arr[gi]; if(!bm)return;
+              if(bm.homeScore==null&&srcGm.homeScore!=null){
+                bm.homeScore=+srcGm.homeScore; bm.awayScore=+srcGm.awayScore;
+                bm.status=srcGm.status==='완료'?'done':'scheduled';
+                if(bm.status==='done'){
+                  if(bm.homeScore>bm.awayScore)bm.winner=bm.home;
+                  else if(bm.awayScore>bm.homeScore)bm.winner=bm.away;
+                }
+              }
+              if(!bm.date&&srcGm.date)bm.date=srcGm.date;
+              if(!bm.time&&srcGm.time)bm.time=srcGm.time;
+              if(!bm.teacher&&srcGm.teacher)bm.teacher=srcGm.teacher;
+              if(!bm.referee&&srcGm.referee)bm.referee=srcGm.referee;
+            });
+          });
         });
-      });}catch(e){}}
+      });
+      [1,2,3].forEach(function(g){['dodgeball','futsal'].forEach(function(sport){try{propagate2(g,sport);}catch(e){}});});
+    }catch(e){}}
   }catch(e){localStorage.removeItem('hansuolympics_cache');}
 })();
 
@@ -2365,6 +2390,7 @@ if(TEACHER_MODE){
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
 var FB_OK=false,FBAUTH=null,FBDB=null,DBREF=null;
+var FB_DATA_LOADED=false; // Firebase 데이터가 최소 1회 수신된 후에만 저장 허용
 var FB_CONFIG={
   apiKey:'AIzaSyABXlNtNQtNJwcBaaIL_T9YF5GJGhvjdVU',
   authDomain:'hansuolympics.firebaseapp.com',
@@ -2510,6 +2536,19 @@ function startFirebase(){
 
     /* ── 현재 탭 다시 렌더링 ── */
     const pid=(document.querySelector('.page.active')||{}).id||'';
+    FB_DATA_LOADED=true;
+    // 진단 로그 (브라우저 콘솔에서 확인 가능)
+    try{
+      var r1=tournaments2[3].dodgeball.rounds.r1[0];
+      console.log('[FB Load] 3학년 피구 1라운드 첫 경기:',
+        r1.home&&r1.home.name, 'vs', r1.away&&r1.away.name,
+        '점수:', r1.homeScore, ':', r1.awayScore,
+        '날짜:', r1.date, '교시:', r1.time);
+      var qf=tournaments2[3].dodgeball.rounds.qf[0];
+      console.log('[FB Load] 3학년 피구 8강 첫 경기:',
+        qf.home&&qf.home.name, 'vs', qf.away&&qf.away.name,
+        '점수:', qf.homeScore, ':', qf.awayScore);
+    }catch(de){}
     if(pid==='page-home')renderHome();
     else if(pid==='page-bracket1')renderBracket2(1);
     else if(pid==='page-bracket2')renderBracket2(2);
@@ -2547,6 +2586,11 @@ function fbCheckAdmin(pin){
 function _saveToFirebase(label){
   if(!isAdmin||!FB_OK)return;
   if(!FBAUTH.currentUser)return;
+  if(!FB_DATA_LOADED){
+    console.warn('[Save] Firebase 데이터 미수신 상태 — 저장 보류:',label);
+    showToast('⏳ 데이터 로드 중... 잠시 후 다시 시도해 주세요.');
+    return;
+  }
   const payload={
     tournaments:JSON.stringify(tournaments),
     schedules:JSON.stringify(schedules),
