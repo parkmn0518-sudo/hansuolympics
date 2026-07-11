@@ -2408,8 +2408,34 @@ function startFirebase(){
     console.log('[Firebase] ✅ 초기화 완료');
   }catch(e){console.error('[Firebase] 초기화 오류:',e);return;}
 
-  /* 실시간 수신 */
-  DBREF.on('value',function(snap){
+  /* 인증 확인 후 데이터 수신 시작 */
+  FBAUTH.onAuthStateChanged(function(user){
+    console.log('[Firebase] 인증:', user?user.email:'로그아웃');
+    if(user){
+      // 로그인 상태: 교사모드면 관리자 활성화
+      if(TEACHER_MODE)_activateAdmin();
+      startListening();
+    } else {
+      // 비로그인: 익명 로그인으로 읽기 권한 확보 (학생 뷰어용)
+      FBAUTH.signInAnonymously()
+        .then(function(){console.log('[Firebase] 익명 로그인 성공');})
+        .catch(function(e){
+          console.warn('[Firebase] 익명 로그인 실패, 직접 수신 시도:',e.message);
+          startListening();
+        });
+      if(user===null && isAdmin) _deactivateAdmin();
+    }
+  });
+}
+
+function startListening(){
+  if(!DBREF)return;
+  DBREF.on('value', onFirebaseData, function(err){
+    console.error('[Firebase] 수신 오류:',err);
+    showToast('⚠️ 데이터 로드 실패: '+err.message);
+  });
+}
+function onFirebaseData(snap){
     const d=snap.val();
     if(!d){return;}
     /* 캐시 저장 */
@@ -2557,15 +2583,7 @@ function startFirebase(){
     else if(pid==='page-rules')renderRulesCard();
     else if(pid==='page-allgames')renderAllGames();
     ['safety','award','emergency'].forEach(function(t){renderInfoCard(t);});
-  },function(err){console.error('[Firebase] 수신 오류:',err);});
-
-  /* 인증 상태 감지 */
-  FBAUTH.onAuthStateChanged(function(user){
-    console.log('[Firebase] 인증:',user?user.email:'로그아웃');
-    if(user&&TEACHER_MODE)_activateAdmin();
-    else if(!user&&isAdmin)_deactivateAdmin();
-  });
-}
+}  // onFirebaseData 끝
 
 function fbCheckAdmin(pin){
   const errEl=document.getElementById('adminError');
