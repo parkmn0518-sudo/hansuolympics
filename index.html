@@ -1113,7 +1113,7 @@ function renderBracket(g){
   const allM=[].concat(R.r1,R.qf,R.sf,R.third,R.final);
   const done=allM.filter(function(m){return m.status==='done';}).length;
   const f=R.final[0];let champ='',second='',third='';
-  if(f.status==='done'&&f.winner){champ=f.winner.name;second=(f.winner===f.home?f.away:f.home)?((f.winner===f.home?f.away:f.home).name||''):'';} 
+  if(f.status==='done'&&f.winner){champ=f.winner.name;var _ru=f.winner.name===(f.home&&f.home.name)?f.away:f.home;second=_ru?(_ru.name||''):'';} 
   if(R.third[0]&&R.third[0].status==='done'&&R.third[0].winner)third=R.third[0].winner.name;
   const podium=(champ||second||third)?'<div class="podium-grid">'+
     (champ?'<div class="podium-card gold-b"><div style="font-size:18px;">🥇</div><div class="podium-name">'+champ+'</div><div class="podium-lbl">우승</div></div>':'')+
@@ -1240,8 +1240,14 @@ function propagate2(g, sport) {
   R.qf[3].away=R.r1[1].winner||null;
   R.sf[0].home=R.qf[0].winner||null;R.sf[0].away=R.qf[3].winner||null;
   R.sf[1].home=R.qf[1].winner||null;R.sf[1].away=R.qf[2].winner||null;
-  var l0=R.sf[0].status==='done'?(R.sf[0].winner===R.sf[0].home?R.sf[0].away:R.sf[0].home):null;
-  var l1=R.sf[1].status==='done'?(R.sf[1].winner===R.sf[1].home?R.sf[1].away:R.sf[1].home):null;
+  function loser(sf){
+    if(sf.status!=='done'||!sf.winner)return null;
+    var wn=sf.winner.name;
+    if(sf.home&&sf.home.name===wn)return sf.away;
+    if(sf.away&&sf.away.name===wn)return sf.home;
+    return null;
+  }
+  var l0=loser(R.sf[0]), l1=loser(R.sf[1]);
   R.third[0].home=l0; R.third[0].away=l1;
   R.final[0].home=R.sf[0].winner||null;R.final[0].away=R.sf[1].winner||null;
 }
@@ -1812,7 +1818,7 @@ function renderBracket2(g, sport){
   var allM=[].concat(R.r1,R.qf,R.sf,R.third,R.final);
   var done=allM.filter(function(m){return m.status==='done';}).length;
   var f=R.final[0];var champ='',second='',third_='';
-  if(f.status==='done'&&f.winner){champ=f.winner.name;second=(f.winner===f.home?f.away:f.home)?((f.winner===f.home?f.away:f.home).name||''):'';} 
+  if(f.status==='done'&&f.winner){champ=f.winner.name;var _ru=f.winner.name===(f.home&&f.home.name)?f.away:f.home;second=_ru?(_ru.name||''):'';} 
   if(R.third[0]&&R.third[0].status==='done'&&R.third[0].winner)third_=R.third[0].winner.name;
   var podium=(champ||second||third_)?'<div class="podium-grid">'+
     (champ?'<div class="podium-card gold-b"><div style="font-size:18px;">🥇</div><div class="podium-name">'+champ+'</div><div class="podium-lbl">우승</div></div>':'')+
@@ -2287,9 +2293,17 @@ function renderGlBody(){
           if(!T2[g][sport].rounds.third||!T2[g][sport].rounds.third.length){
             T2[g][sport].rounds.third=tournaments2[g][sport].rounds.third;
           }
+          // winner 객체를 home/away 참조로 복원 (=== 비교·propagate2 정확도 보장)
+          var rKeys=['r1','qf','sf','third','final'];
+          rKeys.forEach(function(k){(T2[g][sport].rounds[k]||[]).forEach(function(m){
+            if(!m||!m.winner)return;
+            if(m.home&&m.winner.name===m.home.name)m.winner=m.home;
+            else if(m.away&&m.winner.name===m.away.name)m.winner=m.away;
+            else m.winner=null;
+          });});
         });
         tournaments2[g]=T2[g];
-      });}catch(e){}}
+      });}catch(e){console.error('[Cache] tournaments2 로드 오류:',e);}}
     if(d.schedules2){try{const S2=JSON.parse(d.schedules2);[1,2,3].forEach(function(g){
         if(!S2[g])return;
         ['dodgeball','futsal'].forEach(function(sport){
@@ -2423,9 +2437,17 @@ function startFirebase(){
             if(!T2[g][sport].rounds.third||!T2[g][sport].rounds.third.length){
               T2[g][sport].rounds.third=tournaments2[g][sport].rounds.third;
             }
+            // winner 객체를 home/away 참조로 복원 (=== 비교·propagate2 정확도 보장)
+            var rKeys=['r1','qf','sf','third','final'];
+            rKeys.forEach(function(k){(T2[g][sport].rounds[k]||[]).forEach(function(m){
+              if(!m||!m.winner)return;
+              if(m.home&&m.winner.name===m.home.name)m.winner=m.home;
+              else if(m.away&&m.winner.name===m.away.name)m.winner=m.away;
+              else m.winner=null;
+            });});
           });
           tournaments2[g]=T2[g];
-        });} catch(e){}}
+        });} catch(e){console.error('[Firebase] tournaments2 로드 오류:',e);}}
       if(d.schedules2){try{const S2=JSON.parse(d.schedules2);[1,2,3].forEach(function(g){
           if(!S2[g])return;
           ['dodgeball','futsal'].forEach(function(sport){
