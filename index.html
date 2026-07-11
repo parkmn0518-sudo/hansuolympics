@@ -2386,24 +2386,34 @@ function startFirebase(){
   DBREF.on('value',function(snap){
     const d=snap.val();
     if(!d){return;}
-    /* ④ 캐시 저장 */
+    /* 캐시 저장 */
     try{localStorage.setItem('hansuolympics_cache',JSON.stringify(d));}catch(e){}
+
+    /* ── tournaments (1학년 구형 데이터) ── */
     try{
       if(d.tournaments){
         const T=JSON.parse(d.tournaments);
         [1,2,3].forEach(function(g){
           if(!T[g])return;
           const R=T[g].rounds;
-          [].concat(R.r1,R.qf,R.sf,R.third||[],R.final).forEach(function(m){
+          if(!R)return;
+          [].concat(R.r1||[],R.qf||[],R.sf||[],R.third||[],R.final||[]).forEach(function(m){
             if(!m||!m.winner)return;
             if(m.home&&m.winner.name===m.home.name)m.winner=m.home;
             else if(m.away&&m.winner.name===m.away.name)m.winner=m.away;
             else m.winner=null;
           });
-          tournaments[g]=T[g];propagate(g);
+          tournaments[g]=T[g];
+          try{propagate(g);}catch(pe){console.warn('[propagate] g='+g,pe);}
         });
       }
-      if(d.schedules){try{const S=JSON.parse(d.schedules);[1,2,3].forEach(function(g){
+    }catch(e){console.error('[Firebase] tournaments 오류:',e);}
+
+    /* ── schedules (구형) ── */
+    try{
+      if(d.schedules){
+        const S=JSON.parse(d.schedules);
+        [1,2,3].forEach(function(g){
           if(!S[g])return;
           S[g].forEach(function(srcRnd){
             var defRnd=(schedules[g]||[]).find(function(r){return r.roundName===srcRnd.roundName;});
@@ -2421,57 +2431,84 @@ function startFirebase(){
               }
             });
           });
-        });}catch(e){}}
-      if(d.noticePosts)noticePosts=JSON.parse(d.noticePosts);
-      if(d.studentPosts)studentPosts=JSON.parse(d.studentPosts);
-      if(d.overviewData)overviewData=JSON.parse(d.overviewData);
-      // rulesData/infoData: Firebase 저장값 무시, 코드 기본값 사용
-      // if(d.rulesData)rulesData=JSON.parse(d.rulesData);
-      // if(d.infoData)Object.assign(infoData,JSON.parse(d.infoData));
-      if(d.calManualEvents)calManualEvents=JSON.parse(d.calManualEvents);
-      if(d.tournaments2){try{const T2=JSON.parse(d.tournaments2);[1,2,3].forEach(function(g){
+        });
+      }
+    }catch(e){console.error('[Firebase] schedules 오류:',e);}
+
+    /* ── noticePosts / studentPosts / overviewData / calendar ── */
+    try{if(d.noticePosts)noticePosts=JSON.parse(d.noticePosts);}catch(e){}
+    try{if(d.studentPosts)studentPosts=JSON.parse(d.studentPosts);}catch(e){}
+    try{if(d.overviewData)overviewData=JSON.parse(d.overviewData);}catch(e){}
+    try{if(d.calManualEvents)calManualEvents=JSON.parse(d.calManualEvents);}catch(e){}
+
+    /* ── tournaments2 (현행 대진표) ── */
+    try{
+      if(d.tournaments2){
+        const T2=JSON.parse(d.tournaments2);
+        [1,2,3].forEach(function(g){
           if(!T2[g])return;
           ['dodgeball','futsal'].forEach(function(sport){
             if(!T2[g][sport])return;
-            // third 배열 없으면 기본값 보정
-            if(!T2[g][sport].rounds.third||!T2[g][sport].rounds.third.length){
-              T2[g][sport].rounds.third=tournaments2[g][sport].rounds.third;
-            }
-            // winner 객체를 home/away 참조로 복원 (=== 비교·propagate2 정확도 보장)
-            var rKeys=['r1','qf','sf','third','final'];
-            rKeys.forEach(function(k){(T2[g][sport].rounds[k]||[]).forEach(function(m){
-              if(!m||!m.winner)return;
-              if(m.home&&m.winner.name===m.home.name)m.winner=m.home;
-              else if(m.away&&m.winner.name===m.away.name)m.winner=m.away;
-              else m.winner=null;
-            });});
-          });
-          tournaments2[g]=T2[g];
-        });} catch(e){console.error('[Firebase] tournaments2 로드 오류:',e);}}
-      if(d.schedules2){try{const S2=JSON.parse(d.schedules2);[1,2,3].forEach(function(g){
-          if(!S2[g])return;
-          ['dodgeball','futsal'].forEach(function(sport){
-            if(!S2[g][sport])return;
-            var defRounds=schedules2[g][sport];
-            S2[g][sport].forEach(function(srcRnd){
-              var defRnd=defRounds.find(function(r){return r.roundName===srcRnd.roundName;});
-              if(!defRnd)return;
-              srcRnd.games.forEach(function(srcGm,gi){
-                if(gi<defRnd.games.length){
-                  var dg=defRnd.games[gi];
-                  if(srcGm.date)dg.date=srcGm.date;
-                  if(srcGm.time)dg.time=srcGm.time;
-                  if(srcGm.teacher)dg.teacher=srcGm.teacher;
-                  if(srcGm.referee)dg.referee=srcGm.referee;
-                  if(srcGm.homeScore!=null)dg.homeScore=srcGm.homeScore;
-                  if(srcGm.awayScore!=null)dg.awayScore=srcGm.awayScore;
-                  if(srcGm.status)dg.status=srcGm.status;
-                }
+            var r=T2[g][sport].rounds;
+            if(!r)return;
+            if(!r.third||!r.third.length)r.third=tournaments2[g][sport].rounds.third;
+            // winner 복원
+            ['r1','qf','sf','third','final'].forEach(function(k){
+              (r[k]||[]).forEach(function(m){
+                if(!m||!m.winner)return;
+                if(m.home&&m.winner.name===m.home.name)m.winner=m.home;
+                else if(m.away&&m.winner.name===m.away.name)m.winner=m.away;
+                else m.winner=null;
               });
             });
           });
-        });}catch(e){}}
-    }catch(e){console.error('[Firebase] 파싱 오류:',e);return;}
+          tournaments2[g]=T2[g];
+        });
+      }
+    }catch(e){console.error('[Firebase] tournaments2 오류:',e);}
+
+    /* ── schedules2 → tournaments2 점수/날짜 동기화 (schedules2에 저장된 데이터가 tournaments2에 없을 경우 복원) ── */
+    try{
+      if(d.schedules2){
+        const S2=JSON.parse(d.schedules2);
+        var rndKey={'1라운드':'r1','8강':'qf','4강':'sf','3·4위전':'third','결승전':'final'};
+        [1,2,3].forEach(function(g){
+          if(!S2[g])return;
+          ['dodgeball','futsal'].forEach(function(sport){
+            if(!S2[g][sport])return;
+            S2[g][sport].forEach(function(srcRnd){
+              var rk=rndKey[srcRnd.roundName]; if(!rk)return;
+              var arr=(tournaments2[g][sport].rounds[rk]||[]);
+              srcRnd.games.forEach(function(srcGm,gi){
+                if(gi>=arr.length)return;
+                var bm=arr[gi]; if(!bm)return;
+                // tournaments2에 점수가 없을 때만 schedules2 값으로 채움
+                if(bm.homeScore==null&&srcGm.homeScore!=null){
+                  bm.homeScore=+srcGm.homeScore; bm.awayScore=+srcGm.awayScore;
+                  bm.status=srcGm.status==='완료'?'done':'scheduled';
+                  if(bm.status==='done'){
+                    if(bm.homeScore>bm.awayScore)bm.winner=bm.home;
+                    else if(bm.awayScore>bm.homeScore)bm.winner=bm.away;
+                  }
+                }
+                if(!bm.date&&srcGm.date)bm.date=srcGm.date;
+                if(!bm.time&&srcGm.time)bm.time=srcGm.time;
+                if(!bm.teacher&&srcGm.teacher)bm.teacher=srcGm.teacher;
+                if(!bm.referee&&srcGm.referee)bm.referee=srcGm.referee;
+              });
+            });
+          });
+        });
+        // 동기화 후 propagate
+        [1,2,3].forEach(function(g){
+          ['dodgeball','futsal'].forEach(function(sport){
+            try{propagate2(g,sport);}catch(e){}
+          });
+        });
+      }
+    }catch(e){console.error('[Firebase] schedules2 동기화 오류:',e);}
+
+    /* ── 현재 탭 다시 렌더링 ── */
     const pid=(document.querySelector('.page.active')||{}).id||'';
     if(pid==='page-home')renderHome();
     else if(pid==='page-bracket1')renderBracket2(1);
