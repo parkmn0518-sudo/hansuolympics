@@ -13,7 +13,7 @@
 :root{
   --navy:#1a2a5e;--navy-dark:#0f1a3d;--navy-light:#253a7a;
   --gold:#c9952a;--gold-light:#f0c050;
-  --white:#fff;--bg:#f4f5f8;--card:#fff;
+  --white:#fff;--bg:#f4f5f8;--card:#fff;a
   --text:#1a1a2e;--text2:#4a5580;--border:#d8dce8;
   --win:#e11d48;--radius:10px;
   --futsal-bg:#dbeafe;--futsal-text:#1e3a8a;--futsal-border:#93c5fd;
@@ -1826,8 +1826,19 @@ function renderBracket2(g, sport){
   var allM=[].concat(R.r1,R.qf,R.sf,R.third,R.final);
   var done=allM.filter(function(m){return m.status==='done';}).length;
   var f=R.final[0];var champ='',second='',third_='';
-  if(f.status==='done'&&f.winner){champ=f.winner.name;var _ru=f.winner.name===(f.home&&f.home.name)?f.away:f.home;second=_ru?(_ru.name||''):'';} 
-  if(R.third[0]&&R.third[0].status==='done'&&R.third[0].winner)third_=R.third[0].winner.name;
+  if(f.status==='done'){
+    var fhWin=f.homeScore!=null&&f.awayScore!=null&&f.homeScore>f.awayScore;
+    var faWin=f.homeScore!=null&&f.awayScore!=null&&f.awayScore>f.homeScore;
+    if(fhWin){champ=f.home?f.home.name:'';second=f.away?f.away.name:'';}
+    else if(faWin){champ=f.away?f.away.name:'';second=f.home?f.home.name:'';}
+    else if(f.winner){champ=f.winner.name;var _ru=f.winner.name===(f.home&&f.home.name)?f.away:f.home;second=_ru?(_ru.name||''):'';} 
+  }
+  if(R.third[0]&&R.third[0].status==='done'){
+    var t3=R.third[0];
+    if(t3.homeScore!=null&&t3.awayScore!=null&&t3.homeScore>t3.awayScore)third_=t3.home?t3.home.name:'';
+    else if(t3.homeScore!=null&&t3.awayScore!=null&&t3.awayScore>t3.homeScore)third_=t3.away?t3.away.name:'';
+    else if(t3.winner)third_=t3.winner.name;
+  }
   var podium=(champ||second||third_)?'<div class="podium-grid">'+
     (champ?'<div class="podium-card gold-b"><div style="font-size:18px;">🥇</div><div class="podium-name">'+champ+'</div><div class="podium-lbl">우승</div></div>':'')+
     (second?'<div class="podium-card"><div style="font-size:18px;">🥈</div><div class="podium-name">'+second+'</div><div class="podium-lbl">준우승</div></div>':'')+
